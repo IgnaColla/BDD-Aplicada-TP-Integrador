@@ -1,41 +1,31 @@
---Fecha de entrega: []/[]
---Número de grupo: 17
---Materia: BASES DE DATOS APLICADAS
---Alumnos:
-
-
---Trabajo práctico Integrador
-
---Se detalla a continuación el proceso de instalación y configuración aplicada para Microsoft SQL Server.
---Ubicación de los Medios: C:\SQL2022
---Nombre de la instancia SQLEXPRESS
-
---Se utilizara para administrar el motor de base de datos SQL Server Management Studio v19.1.
---En la unidad C:\Program Files (x86)\Microsoft SQL Server Management Studio 19.
---Configuración Aplicada:
---Server Name: DESKTOP-707ICIM\MSSQL
---Lenguaje: Inglés (Estados Unidos)
---Memoria asignada: 7569 MB
---Processors: 12
---Server Collation: SQL_Latin1_General_CP1_CI_AS
---TCP Port: 49172
+----------------------------------------------------
+-------------------  CREACION DB -------------------
+----------------------------------------------------
 
 -- ## CONVENCIONES ##
-
 -- DB: Com2900G17
 -- SCHEMA: ddbba
 -- TABLAS: UpperCamelCase 
 -- CAMPOS: camel_case+
 -- ROLES: UpperCamelCase
 
---------------------------------------------------
-------  CREACION DB
---------------------------------------------------
-USE master
-GO
-DROP DATABASE IF EXISTS Com2900G17
-GO
-CREATE DATABASE Com2900G17 COLLATE SQL_Latin1_General_CP1_CI_AS
-GO
+BEGIN TRY    
+    -- Elimina la base de datos si ya existe
+
+    USE master;
+	DROP DATABASE IF EXISTS Com2900G17;
+    
+    -- Crea la base de datos
+    CREATE DATABASE Com2900G17 COLLATE SQL_Latin1_General_CP1_CI_AS;
+
+    -- Mensaje de éxito
+	PRINT('La base de datos [Com2900G17] se ha creado correctamente.');
+END TRY
+
+BEGIN CATCH
+    -- Captura y muestra el error si ocurre uno
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    RAISERROR('Error al crear la base de datos [Com2900G17]: %s', 16, 1, @ErrorMessage);
+END CATCH;
+
 USE Com2900G17
-GO

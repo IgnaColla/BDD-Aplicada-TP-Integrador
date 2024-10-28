@@ -94,28 +94,3 @@ BEGIN
         RAISERROR('Empleado inexistente.', 16, 1);
     END
 END;
-
-
-drop procedure Administracion.ImportarEmpleadosDesdeCSV
-
-EXEC Administracion.ImportarEmpleadosDesdeCSV
-@RutaArchivo = 'E:\Lauty\Facultad\2024\BBDDA\TP\TP_Integrador\dataset\Empleados.csv'
-GO
-
-EXEC Administracion.EliminarEmpleado
-
-EXEC Administracion.InsertarOActualizarEmpleado 
-    @IdEmpleado = 257035, -- Este valor solo importa si se quiere actualizar
-    @Nombre = 'Juan Carlos',
-    @Apellido = 'Pérez',
-    @DNI = '12345678',
-    @Direccion = 'Calle Falsa 123, Buenos Aires',
-    @EmailPersonal = 'juan.perez@gmail.com',
-    @EmailEmpresa = 'juan.perez@empresa.com',
-    @CUIL = '20123456789',
-    @Cargo = 'Cajero',
-    @Sucursal = 'San Justo',
-    @Turno = 'TM';
-
-select * from Administracion.Empleado
-delete from Administracion.Empleado

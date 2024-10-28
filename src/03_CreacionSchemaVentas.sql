@@ -11,6 +11,12 @@ BEGIN
     EXEC('CREATE SCHEMA Ventas')
 END
 GO
+CREATE TABLE Ventas.MedioDePago(
+	Id int identity,
+	Codigo VARCHAR(15) PRIMARY KEY,
+    Descripcion VARCHAR(25)          
+)
+GO
 CREATE TABLE Ventas.Venta(
 	IdFactura VARCHAR(20) PRIMARY KEY,           -- ID de la factura como clave primaria
     TipoFactura CHAR(1) NOT NULL CHECK (TipoFactura IN ('A', 'B', 'C')), -- Restricción para tipos de factura
@@ -27,11 +33,9 @@ CREATE TABLE Ventas.Venta(
     IdentificadorPago VARCHAR(40),                -- Identificador de pago, tamaño ajustado
 	CONSTRAINT FK_Venta_Empleado FOREIGN KEY(Empleado) 
 	REFERENCES Administracion.Empleado(IdEmpleado)
+	ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT FK_Venta_Medio_Pago FOREIGN KEY(MedioPago) 
+	REFERENCES Ventas.MedioDePago(Codigo)
 	ON DELETE CASCADE ON UPDATE CASCADE
-)
-GO
-CREATE TABLE Ventas.MedioDePago(
-	Codigo VARCHAR(15) PRIMARY KEY,
-    Descripcion VARCHAR(25)          
 )
 GO
