@@ -25,7 +25,7 @@ CREATE OR ALTER PROCEDURE Ventas.InformeMensualXML
 AS
 BEGIN
 	SELECT 
-		DATENAME(WEEKDAY, Fecha) AS DiaDeLaSemana,  -- Nombre del día de la semana
+		DATENAME(WEEKDAY, Fecha) AS DiaDeLaSemana,  -- Nombre del dÃ­a de la semana
 		SUM(PrecioUnitario * Cantidad) AS TotalFacturado  -- Suma de los montos facturados
 	FROM 
 		Ventas.Venta
