@@ -19,8 +19,8 @@ BEGIN
 		SET @SQL = N'BULK INSERT Administracion.Empleado
 					FROM ''' + @RutaArchivo + ''' 
 					WITH (
-						FIELDTERMINATOR = '';'',			-- Cambia el separador segÃºn sea necesario
-						ROWTERMINATOR = ''\n'',				-- Cambia el terminador de fila segÃºn sea necesario
+						FIELDTERMINATOR = '';'',			-- Cambia el separador según sea necesario
+						ROWTERMINATOR = ''\n'',				-- Cambia el terminador de fila según sea necesario
 						FIRSTROW = 2,						-- Si el archivo tiene encabezados, comienza desde la segunda fila
 						KEEPNULLS,
 						CODEPAGE = ''ACP'',
@@ -28,13 +28,13 @@ BEGIN
 					);';
 		EXEC sp_executesql @SQL;
 
-		PRINT '+ ImportaciÃ³n de empleados completada exitosamente.';
+		PRINT '+ Importación de empleados completada exitosamente.';
 	END TRY
 	BEGIN CATCH -- En caso de error
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
         DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
         DECLARE @ErrorState INT = ERROR_STATE();
-        RAISERROR('+ Error durante la importaciÃ³n de empleados: %s', 16, 1, @ErrorMessage, @ErrorSeverity, @ErrorState);
+        RAISERROR('+ Error durante la importación de empleados: %s', 16, 1, @ErrorMessage, @ErrorSeverity, @ErrorState);
     END CATCH;
 END;
 
@@ -56,7 +56,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
+        BEGIN TRANSACTION;  -- Iniciar transacción
 
         -- Verificar si el empleado ya existe
         IF EXISTS (SELECT 1 FROM Administracion.Empleado WHERE DNI = @DNI)	
@@ -69,15 +69,15 @@ BEGIN
         INSERT INTO Administracion.Empleado (IdEmpleado, Nombre, Apellido, DNI, Direccion, EmailPersonal, EmailEmpresa, CUIL, Cargo, Sucursal, Turno)
         VALUES (@IdEmpleado, @Nombre, @Apellido, @DNI, @Direccion, @EmailPersonal, @EmailEmpresa, @CUIL, @Cargo, @Sucursal, @Turno);
 
-        COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
+        COMMIT TRANSACTION;  -- Confirmar transacción
 
-        RAISERROR('+ Empleado insertado con Ã©xito.', 0, 1);
+        PRINT('+ Empleado insertado con éxito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserciÃ³n del empleado: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la inserción del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 
@@ -99,7 +99,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
+        BEGIN TRANSACTION;  -- Iniciar transacción
 
         -- Verificar si el empleado existe
         IF NOT EXISTS (SELECT 1 FROM Administracion.Empleado WHERE IdEmpleado = @IdEmpleado)	
@@ -122,27 +122,27 @@ BEGIN
             Turno = @Turno
         WHERE IdEmpleado = @IdEmpleado;
 
-        COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
+        COMMIT TRANSACTION;  -- Confirmar transacción
 
-        RAISERROR('+ Empleado actualizado con Ã©xito.', 0, 1);
+        PRINT('+ Empleado actualizado con éxito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la actualizaciÃ³n del empleado: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la actualización del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 
 
 CREATE OR ALTER PROCEDURE Administracion.EliminarEmpleado
-    @IdEmpleado INT = NULL, -- ParÃ¡metro opcional para buscar por IdEmpleado
-    @DNI CHAR(8) = NULL -- ParÃ¡metro opcional para buscar por DNI
+    @IdEmpleado INT = NULL, -- Parámetro opcional para buscar por IdEmpleado
+    @DNI CHAR(8) = NULL -- Parámetro opcional para buscar por DNI
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Verificar si se proporcionÃ³ algÃºn parÃ¡metro vÃ¡lido
+    -- Verificar si se proporcionó algún parámetro válido
     IF @IdEmpleado IS NULL AND @DNI IS NULL
     BEGIN
         RAISERROR('+ Debe proporcionar el IdEmpleado o el DNI para eliminar un empleado.', 16, 1);
@@ -150,39 +150,39 @@ BEGIN
     END
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
+        BEGIN TRANSACTION;  -- Iniciar transacción
 
         -- Buscar empleado y eliminar
         DELETE FROM Administracion.Empleado 
         WHERE (IdEmpleado = @IdEmpleado OR DNI = @DNI);
 
-        IF @@ROWCOUNT = 0  -- Verificar si se eliminÃ³ algÃºn registro
+        IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
         BEGIN
             RAISERROR('+ Empleado inexistente.', 16, 1);
             RETURN;
         END
 
-        COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
+        COMMIT TRANSACTION;  -- Confirmar transacción
 
-        RAISERROR('+ Empleado eliminado con Ã©xito.', 0, 1);
+        PRINT('+ Empleado eliminado con éxito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la eliminaciÃ³n del empleado: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la eliminación del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 
 
 -- #################### Ejecucion ####################
 
-EXEC Administracion.ImportarEmpleadosDesdeCSV @RutaArchivo = 'C:\Users\Ignacio\Downloads\TP-Integrador\Empleados.csv'
+EXEC Administracion.ImportarEmpleadosDesdeCSV @RutaArchivo = '<Path_al_archivo>'
 
 EXEC Administracion.InsertarEmpleado
     @IdEmpleado = 257035,
     @Nombre = 'Juan Carlos',
-    @Apellido = 'PÃ©rez',
+    @Apellido = 'Pérez',
     @DNI = '12345678',
     @Direccion = 'Calle Falsa 123, Buenos Aires',
     @EmailPersonal = 'juan.perez@gmail.com',

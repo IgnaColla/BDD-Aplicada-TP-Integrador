@@ -22,26 +22,21 @@ BEGIN
                         FIELDTERMINATOR = '';'',			-- Cambia el separador si es necesario
                         ROWTERMINATOR = ''\n'',				-- Cambia el terminador de fila si es necesario
                         FIRSTROW = 2,						-- Comienza desde la segunda fila si el archivo tiene encabezados
-                        KEEPNULLS,
-                        CODEPAGE = ''ACP'',
-                        TABLOCK
+                        CODEPAGE = ''65001''
                     );';
         EXEC sp_executesql @SQL;
 
-		RAISERROR('+ ImportaciÃ³n de sucursales completada exitosamente.', 0, 1);
+		PRINT('+ Importación de sucursales completada exitosamente.');
     END TRY
     BEGIN CATCH
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
         DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
         DECLARE @ErrorState INT = ERROR_STATE();
-        RAISERROR('+ Error durante la importaciÃ³n de sucursales: %s', 16, 1, @ErrorMessage, @ErrorSeverity, @ErrorState);
+        RAISERROR('+ Error durante la importación de sucursales: %s', 16, 1, @ErrorMessage, @ErrorSeverity, @ErrorState);
     END CATCH;
 END;
 
 
 -- #################### Ejecucion ####################
 
-EXEC Administracion.ImportarSucursalesDesdeCSV @RutaArchivo = 'C:\Users\Ignacio\Downloads\TP-Integrador\Sucursal.csv'
-
--- OBSERVACIONES
--- Segun la consigna son 3 sucursales por ende tener SP para agregar sucursales no seria necesario
+EXEC Administracion.ImportarSucursalesDesdeCSV @RutaArchivo = '<Path_al_archivo>'

@@ -5,68 +5,56 @@
 USE Com2900G17;
 GO
 
-BEGIN TRY
-    -- Eliminaci贸n de tablas si existen
-    IF OBJECT_ID('Productos.Catalogo', 'U') IS NOT NULL
-        DROP TABLE Productos.Catalogo;
-    IF OBJECT_ID('Productos.ProductoImportado', 'U') IS NOT NULL
-        DROP TABLE Productos.ProductoImportado;
-    IF OBJECT_ID('Productos.ProductoElectronico', 'U') IS NOT NULL
-        DROP TABLE Productos.ProductoElectronico;
-    IF OBJECT_ID('Productos.ClasificacionProducto', 'U') IS NOT NULL
-        DROP TABLE Productos.ClasificacionProducto;
-END TRY
-BEGIN CATCH
-    DECLARE @ErrorMsg NVARCHAR(4000) = ERROR_MESSAGE();
-    RAISERROR('+ Error eliminando tabla: %s', 16, 1, @ErrorMsg);
-END CATCH;
+-- Eliminaci髇 de tablas si existen
+DROP TABLE IF EXISTS Productos.Catalogo;
+DROP TABLE IF EXISTS Productos.ProductoImportado;
+DROP TABLE IF EXISTS Productos.ProductoElectronico;
+DROP TABLE IF EXISTS Productos.ClasificacionProducto;
 
 BEGIN TRY
-    -- Creaci贸n del esquema Productos si no existe
+    -- Creaci髇 del esquema Productos si no existe
     IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Productos')
         EXEC('CREATE SCHEMA Productos');
 
-    -- Creaci贸n de tabla Productos.ClasificacionProducto
+    -- Creaci髇 de tabla Productos.ClasificacionProducto
     CREATE TABLE Productos.ClasificacionProducto (
-        LineaProducto VARCHAR(15) NOT NULL UNIQUE,
-        Producto VARCHAR(40) NOT NULL PRIMARY KEY
+        LineaProducto VARCHAR(15) NOT NULL UNIQUE,	-- Categoria
+        Producto VARCHAR(40) NOT NULL PRIMARY KEY	-- Nombre
     );
 
-    -- Creaci贸n de tabla Productos.Catalogo
+    -- Creaci髇 de tabla Productos.Catalogo
     CREATE TABLE Productos.Catalogo (
         Id INT PRIMARY KEY,
         Categoria VARCHAR(40) NOT NULL,
-        Nombre VARCHAR(50) NOT NULL,
-        Precio DECIMAL(5, 2) NOT NULL CHECK (Precio > 0),
-        PrecioRef DECIMAL(5, 2) NOT NULL CHECK (PrecioRef > 0),
-        UnidadRef VARCHAR(5) NOT NULL,
-        Fecha DATETIME NOT NULL,
-        CONSTRAINT FK_Catalogo_Clasificacion FOREIGN KEY (Categoria) 
-            REFERENCES Productos.ClasificacionProducto (Producto) ON DELETE CASCADE ON UPDATE CASCADE
+        Nombre VARCHAR(100) NOT NULL,
+        Precio DECIMAL(10, 2) NOT NULL CHECK (Precio > 0),
+        PrecioRef DECIMAL(10, 2) NOT NULL CHECK (PrecioRef > 0),
+        UnidadRef VARCHAR(10) NOT NULL,
+        Fecha VARCHAR(50) NOT NULL,
+        CONSTRAINT FK_Catalogo_Clasificacion FOREIGN KEY (Categoria) REFERENCES Productos.ClasificacionProducto (Producto) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
-    -- Creaci贸n de tabla Productos.ProductoImportado
+    -- Creaci髇 de tabla Productos.ProductoImportado
     CREATE TABLE Productos.ProductoImportado (
         IdProducto INT IDENTITY PRIMARY KEY,
         Nombre VARCHAR(50) NOT NULL,
         Proveedor VARCHAR(50) NOT NULL,
-        Categoria VARCHAR(15) NULL,
+        Categoria VARCHAR(15),
         CantidadPorUnidad VARCHAR(25) NOT NULL,
-        PrecioUnitario DECIMAL(5, 2) NOT NULL CHECK (PrecioUnitario > 0),
-        CONSTRAINT FK_Categoria FOREIGN KEY (Categoria) 
-            REFERENCES Productos.ClasificacionProducto (LineaProducto) ON DELETE CASCADE ON UPDATE CASCADE
+        PrecioUnitario DECIMAL(10, 2) NOT NULL CHECK (PrecioUnitario > 0),
+        CONSTRAINT FK_Categoria FOREIGN KEY (Categoria) REFERENCES Productos.ClasificacionProducto (LineaProducto) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
-    -- Creaci贸n de tabla Productos.ProductoElectronico
+    -- Creaci髇 de tabla Productos.ProductoElectronico
     CREATE TABLE Productos.ProductoElectronico (
         IdProducto INT IDENTITY(1,1) PRIMARY KEY,
         Producto VARCHAR(30) NOT NULL,
         PrecioUnitario DECIMAL(5, 2) NOT NULL CHECK (PrecioUnitario > 0)
     );
 
-    RAISERROR('+ Esquema y tablas en [Productos] creados correctamente.', 0, 1);
+    PRINT('+ Esquema y tablas en [Productos] creados correctamente.');
 END TRY
 BEGIN CATCH
     DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-    RAISERROR('+ Error durante la creaci贸n del esquema o las tablas en [Productos]: %s', 16, 1, @ErrorMessage);
+    RAISERROR('+ Error durante la creaci髇 del esquema o las tablas en [Productos]: %s', 16, 1, @ErrorMessage);
 END CATCH;
