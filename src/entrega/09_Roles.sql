@@ -5,17 +5,20 @@
 USE Com2900G17;
 GO
 
--- CREATE LOGIN Empleado WITH PASSWORD = 'Zidane2006';
--- CREATE LOGIN Supervisor WITH PASSWORD = 'Messi2022';
+CREATE LOGIN Empleado WITH PASSWORD = 'Zidane2006';
+CREATE LOGIN Supervisor WITH PASSWORD = 'Messi2022';
+
+CREATE USER UserEmpleado FOR LOGIN Empleado;
+CREATE USER UserSupervisor FOR LOGIN Supervisor;
 
 CREATE ROLE Empleado;
-ALTER ROLE Empleado ADD MEMBER --EMP;
+ALTER ROLE Empleado ADD MEMBER UserEmpleado;
 
 CREATE ROLE Supervisor;
-ALTER ROLE Supervisor ADD MEMBER --MIEMBRO;
+ALTER ROLE Supervisor ADD MEMBER UserSupervisor;
 
 GRANT SELECT ON Productos.Catalogo TO Empleado;
-GRANT INSERT, DELETE ON Productos.Catalogo TO Supervisor;
+GRANT CONTROL ON Productos.Catalogo TO Supervisor;
 GO
 
 
@@ -27,12 +30,12 @@ USE Com2900G17;
 GO
 
 -- Crear una clave maestra de base de datos
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'ContraseñaSegura123!';
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Sc4ryM0v13!';
 
 -- Crear un certificado para encriptación
 CREATE CERTIFICATE CertificadoEmpleado
-WITH SUBJECT = 'Encriptacion de datos de empleados';
-
+WITH SUBJECT = 'Encriptacion_empleados';
+GO
 
 ALTER TABLE Administracion.Empleado
 ADD DNI_encriptado VARBINARY(MAX), Direccion_encriptada VARBINARY(MAX);
@@ -42,7 +45,7 @@ UPDATE Administracion.Empleado
 SET DNI_encriptado = ENCRYPTBYCERTBYKEY(CertificadoEmpleado, DNI),
     Direccion_encriptada = ENCRYPTBYCERTBYKEY(CertificadoEmpleado, Direccion);
 
--- Opcional: Elimina las columnas no encriptadas si ya no son necesarias
+-- Eliminar las columnas no encriptadas si ya no son necesarias
 -- ALTER TABLE Administracion.Empleado
 -- DROP COLUMN DNI, Direccion;
 

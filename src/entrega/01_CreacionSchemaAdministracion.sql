@@ -7,6 +7,7 @@ GO
 
 -- Eliminación de tablas si existen
 DROP TABLE IF EXISTS Administracion.Empleado;
+GO
 DROP TABLE IF EXISTS Administracion.Sucursal;
 GO
 
@@ -17,9 +18,8 @@ BEGIN TRY
 
     -- Creación de tabla Administracion.Sucursal
     CREATE TABLE Administracion.Sucursal (
-        IdSucursal INT IDENTITY(1,1) PRIMARY KEY,
         Ciudad CHAR(10) NOT NULL,
-        Sucursal VARCHAR(20) NOT NULL UNIQUE,
+        Sucursal VARCHAR(20) PRIMARY KEY,
         Direccion VARCHAR(100) NOT NULL UNIQUE, -- Que no sea la misma sucursal
         Horario VARCHAR(45) NOT NULL,
         Telefono VARCHAR(10) NOT NULL CHECK (TRY_CAST(Telefono AS INT) IS NOT NULL)

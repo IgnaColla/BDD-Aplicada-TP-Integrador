@@ -4,7 +4,7 @@
 
 -- ## CONVENCIONES ##
 -- DB: Com2900G17
--- SCHEMA: ddbba
+-- SCHEMAS: Administracion, Productos, Ventas
 -- TABLAS: UpperCamelCase 
 -- CAMPOS: camel_case+
 -- ROLES: UpperCamelCase
@@ -15,7 +15,7 @@ BEGIN TRY
 	DROP DATABASE IF EXISTS Com2900G17;
     
     -- Crea la base de datos
-    CREATE DATABASE Com2900G17 --COLLATE SQL_Latin1_General_CP1_CI_AS;
+    CREATE DATABASE Com2900G17;
 
     -- Mensaje de éxito
 	PRINT('+ La base de datos [Com2900G17] se ha creado correctamente.');

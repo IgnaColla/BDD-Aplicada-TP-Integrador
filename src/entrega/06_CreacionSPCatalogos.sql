@@ -47,6 +47,7 @@ BEGIN
 END;
 GO
 
+
 CREATE OR ALTER PROCEDURE Productos.ImportarCatalogoProductoDesdeCSV
     @RutaArchivo NVARCHAR(255)
 AS

@@ -38,6 +38,7 @@ BEGIN
 END;
 GO
 
+
 CREATE OR ALTER PROCEDURE Administracion.InsertarEmpleado
     @IdEmpleado INT,
 	@Nombre VARCHAR(50),
@@ -79,6 +80,7 @@ BEGIN
         RAISERROR('+ Error durante la inserción del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
+GO
 
 
 CREATE OR ALTER PROCEDURE Administracion.ActualizarEmpleado
@@ -132,6 +134,7 @@ BEGIN
         RAISERROR('+ Error durante la actualización del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
+GO
 
 
 CREATE OR ALTER PROCEDURE Administracion.EliminarEmpleado
@@ -172,6 +175,7 @@ BEGIN
         RAISERROR('+ Error durante la eliminación del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
+GO
 
 
 /*
