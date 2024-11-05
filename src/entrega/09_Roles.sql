@@ -45,7 +45,7 @@ UPDATE Administracion.Empleado
 SET DNI_encriptado = ENCRYPTBYCERTBYKEY(CertificadoEmpleado, DNI),
     Direccion_encriptada = ENCRYPTBYCERTBYKEY(CertificadoEmpleado, Direccion);
 
--- Eliminar las columnas no encriptadas si ya no son necesarias
+-- Eliminar las columnas no encriptadas
 -- ALTER TABLE Administracion.Empleado
 -- DROP COLUMN DNI, Direccion;
 
