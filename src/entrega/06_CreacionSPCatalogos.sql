@@ -1,4 +1,10 @@
-USE Com2900G17
+-------------------------------------------------------------------
+-------------------  Stored Procedures CATALOGO -------------------
+-------------------------------------------------------------------
+
+-- #################### Creacion ####################
+
+USE Com2900G17;
 GO
 
 CREATE OR ALTER PROCEDURE Productos.ImportarCategoriasDesdeCSV
@@ -7,29 +13,37 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @SQL NVARCHAR(MAX);
+    BEGIN TRY
+         DECLARE @SQL NVARCHAR(MAX);
 
-	CREATE TABLE #Clasificacion(
-		LineaProducto VARCHAR(15),
-		Categoria VARCHAR(40) UNIQUE
-	)
+        CREATE TABLE #Clasificacion(
+            LineaProducto VARCHAR(15),
+            Categoria VARCHAR(40) UNIQUE
+        )
 
-    SET @SQL = N'BULK INSERT #Clasificacion
-                FROM ''' + @RutaArchivo + ''' 
-                WITH (
-                    FIELDTERMINATOR = '';'',  -- Cambia el separador seg鷑 sea necesario
-                    ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg鷑 sea necesario
-                    FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
-					CODEPAGE = ''65001''
-				);';
-    EXEC sp_executesql @SQL;
+        SET @SQL = N'BULK INSERT #Clasificacion
+                    FROM ''' + @RutaArchivo + ''' 
+                    WITH (
+                        FIELDTERMINATOR = '';'',  -- Cambia el separador seg锟絥 sea necesario
+                        ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg锟絥 sea necesario
+                        FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
+                        CODEPAGE = ''65001''
+                    );';
+        
+        EXEC sp_executesql @SQL;
 
-	INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
-	SELECT * FROM #Clasificacion
+        INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
+        SELECT * FROM #Clasificacion
 
-	INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
-	VALUES('Importado', 'importado'),
-	('Electronico', 'electronico')
+        INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
+        VALUES('Importado', 'importado'), ('Electronico', 'electronico')
+
+        PRINT '+ Importaci贸n de categorias completada exitosamente.';
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la importaci贸n de categorias: %s', 16, 1, @ErrorMessage);
+    END CATCH;
 END;
 GO
 
@@ -39,35 +53,45 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @SQL NVARCHAR(MAX);
+    BEGIN TRY
+        DECLARE @SQL NVARCHAR(MAX);
 
-	CREATE TABLE #Catalogo(
-		Id INT,             
-		Categoria VARCHAR(40),     
-		Nombre VARCHAR(100),               
-		Precio DECIMAL(10, 2),              
-		PrecioRef DECIMAL(10, 2) ,    
-		UnidadRef VARCHAR(10),       
-		Fecha varchar(50)                     
-		)
+        CREATE TABLE #Catalogo(
+            Id INT,             
+            Categoria VARCHAR(40),     
+            Nombre VARCHAR(100),               
+            Precio DECIMAL(10, 2),              
+            PrecioRef DECIMAL(10, 2) ,    
+            UnidadRef VARCHAR(10),       
+            Fecha varchar(50)                     
+            )
 
-    SET @SQL = N'BULK INSERT #Catalogo
-                FROM ''' + @RutaArchivo + ''' 
-                WITH (
-                    FIELDTERMINATOR = '';'',  -- Cambia el separador seg鷑 sea necesario
-                    ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg鷑 sea necesario
-                    FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
-					CODEPAGE = ''65001''
-				);';
-    EXEC sp_executesql @SQL;
+        SET @SQL = N'BULK INSERT #Catalogo
+                    FROM ''' + @RutaArchivo + ''' 
+                    WITH (
+                        FIELDTERMINATOR = '';'',  -- Cambia el separador seg锟絥 sea necesario
+                        ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg锟絥 sea necesario
+                        FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
+                        CODEPAGE = ''65001''
+                    );';
+        
+        EXEC sp_executesql @SQL;
 
-	INSERT INTO Productos.Producto
-	SELECT DISTINCT Nombre, Precio FROM #Catalogo
+        INSERT INTO Productos.Producto
+        SELECT DISTINCT Nombre, Precio FROM #Catalogo
 
-	INSERT INTO Productos.Catalogo
-	SELECT * FROM #Catalogo
+        INSERT INTO Productos.Catalogo
+        SELECT * FROM #Catalogo
+
+        PRINT('+ Importaci贸n del cat谩logo completada exitosamente.');
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la importaci贸n del cat谩logo: %s', 16, 1, @ErrorMessage);
+    END CATCH;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE Productos.AgregarCatalogoProductosImportadosDesdeCSV
     @RutaArchivo NVARCHAR(255)
@@ -75,57 +99,67 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @SQL NVARCHAR(MAX);
-	DECLARE @LastCatalogoID INT;
+    BEGIN TRY
+        DECLARE @SQL NVARCHAR(MAX);
+        DECLARE @LastCatalogoID INT;
 
-	-- Obtener el 鷏timo ID de la tabla Catalogo
-    SELECT @LastCatalogoID = ISNULL(MAX(Id), 0) FROM Productos.Catalogo;
+        -- Obtener el 煤ltimo ID de la tabla Catalogo
+        SELECT @LastCatalogoID = ISNULL(MAX(Id), 0) FROM Productos.Catalogo;
 
-	CREATE TABLE #ProductoImportado(
-		IdProducto INT PRIMARY KEY,
-		Nombre VARCHAR(50) NOT NULL,
-		Proveedor VARCHAR(50) NOT NULL,
-		Categoria VARCHAR(15),
-		CantidadPorUnidad VARCHAR(25) NOT NULL,
-		Price VARCHAR(10)
-	)
+        CREATE TABLE #ProductoImportado(
+            IdProducto INT PRIMARY KEY,
+            Nombre VARCHAR(50) NOT NULL,
+            Proveedor VARCHAR(50) NOT NULL,
+            Categoria VARCHAR(15),
+            CantidadPorUnidad VARCHAR(25) NOT NULL,
+            Price VARCHAR(10)
+        )
 
-    SET @SQL = N'BULK INSERT #ProductoImportado
-                FROM ''' + @RutaArchivo + ''' 
-                WITH (
-                    FIELDTERMINATOR = '';'',  -- Cambia el separador seg鷑 sea necesario
-                    ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg鷑 sea necesario
-                    FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
-					CODEPAGE = ''65001''
-				);';
-    EXEC sp_executesql @SQL;
+        SET @SQL = N'BULK INSERT #ProductoImportado
+                    FROM ''' + @RutaArchivo + ''' 
+                    WITH (
+                        FIELDTERMINATOR = '';'',  -- Cambia el separador seg煤n sea necesario
+                        ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg煤n sea necesario
+                        FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
+                        CODEPAGE = ''65001''
+                    );';
+        
+        EXEC sp_executesql @SQL;
 
-	INSERT INTO Productos.Producto(Producto, Precio)
-	SELECT DISTINCT Nombre, 
-	CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio
-	FROM #ProductoImportado
+        INSERT INTO Productos.Producto(Producto, Precio)
+        SELECT DISTINCT Nombre, 
+        CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio
+        FROM #ProductoImportado
 
-	;WITH ProductosNoDuplicados AS (
-    SELECT
-        ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
-        i.Nombre,
-        i.Price
-    FROM #ProductoImportado i
-    LEFT JOIN Productos.Catalogo ca ON i.Nombre = ca.Nombre
-    WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
-	)
+        ;WITH ProductosNoDuplicados AS (
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
+            i.Nombre,
+            i.Price
+        FROM #ProductoImportado i
+        LEFT JOIN Productos.Catalogo ca ON i.Nombre = ca.Nombre
+        WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
+        )
 
-	INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
-	select 
-			Id, 
-			Nombre, 
-			CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio,
-			'importado'
-	from ProductosNoDuplicados
-	
-	DROP TABLE #ProductoImportado
+        INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
+        select 
+                Id, 
+                Nombre, 
+                CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio,
+                'importado'
+        from ProductosNoDuplicados
+
+        DROP TABLE #ProductoImportado
+
+        PRINT('+ Importaci贸n de Productos Importados completada exitosamente.');
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la importaci贸n de Productos Importados: %s', 16, 1, @ErrorMessage);
+    END CATCH;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE Productos.AgregarCatalogoProductosElectronicosDesdeCSV
     @RutaArchivo NVARCHAR(255)
@@ -133,121 +167,70 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @SQL NVARCHAR(MAX);	
-	DECLARE @LastCatalogoID INT;
+    BEGIN TRY
+        DECLARE @SQL NVARCHAR(MAX);	
+        DECLARE @LastCatalogoID INT;
 
-	-- Obtener el 鷏timo ID de la tabla Catalogo
-    SELECT @LastCatalogoID = ISNULL(MAX(Id), 0) FROM Productos.Catalogo;
+        -- Obtener el 煤ltimo ID de la tabla Catalogo
+        SELECT @LastCatalogoID = ISNULL(MAX(Id), 0) FROM Productos.Catalogo;
 
-	CREATE TABLE #Electronico(
-	Producto VARCHAR(30),
-	PrecioUnitario VARCHAR(6)
-	)
+        CREATE TABLE #Electronico(
+        Producto VARCHAR(30),
+        PrecioUnitario VARCHAR(6)
+        )
 
-	CREATE TABLE #ElectronicoSinDuplicados (
-    Producto VARCHAR(30),
-    PrecioUnitario VARCHAR(6)
-    );
+        CREATE TABLE #ElectronicoSinDuplicados (
+        Producto VARCHAR(30),
+        PrecioUnitario VARCHAR(6)
+        );
 
-    SET @SQL = N'BULK INSERT #Electronico
-                FROM ''' + @RutaArchivo + ''' 
-                WITH (
-                    FIELDTERMINATOR = '';'',  -- Cambia el separador seg鷑 sea necesario
-                    ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg鷑 sea necesario
-                    FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
-					CODEPAGE = ''65001''
-				);';
-    EXEC sp_executesql @SQL;
+        SET @SQL = N'BULK INSERT #Electronico
+                    FROM ''' + @RutaArchivo + ''' 
+                    WITH (
+                        FIELDTERMINATOR = '';'',  -- Cambia el separador seg锟絥 sea necesario
+                        ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg锟絥 sea necesario
+                        FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
+                        CODEPAGE = ''65001''
+                    );';
+        
+        EXEC sp_executesql @SQL;
 
-    -- Insertar productos 鷑icos en la nueva tabla
-    INSERT INTO #ElectronicoSinDuplicados (Producto, PrecioUnitario)
-    SELECT DISTINCT Producto, PrecioUnitario
-    FROM #Electronico;
+        -- Insertar productos 煤nicos en la nueva tabla
+        INSERT INTO #ElectronicoSinDuplicados (Producto, PrecioUnitario)
+        SELECT DISTINCT Producto, PrecioUnitario
+        FROM #Electronico;
 
-	INSERT INTO Productos.Producto(Producto, Precio)
-	SELECT 
-			Producto, 
-			CAST(REPLACE(PrecioUnitario, ',', '.') AS DECIMAL(10, 2)) AS Precio
-	FROM #ElectronicoSinDuplicados
+        INSERT INTO Productos.Producto(Producto, Precio)
+        SELECT 
+                Producto, 
+                CAST(REPLACE(PrecioUnitario, ',', '.') AS DECIMAL(10, 2)) AS Precio
+        FROM #ElectronicoSinDuplicados
 
-	;WITH ProductosNoDuplicados AS (
-    SELECT
-        ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
-        e.Producto,
-        PrecioUnitario as Precio
-    FROM #ElectronicoSinDuplicados e
-    LEFT JOIN Productos.Catalogo ca ON e.Producto = ca.Nombre
-    WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
-	)
+        ;WITH ProductosNoDuplicados AS (
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
+            e.Producto,
+            PrecioUnitario as Precio
+        FROM #ElectronicoSinDuplicados e
+        LEFT JOIN Productos.Catalogo ca ON e.Producto = ca.Nombre
+        WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
+        )
 
-	INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
-	SELECT
-		Id,
-		Producto,
-		CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio,
-		'electronico'
-	FROM ProductosNoDuplicados;
+        INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
+        SELECT
+            Id,
+            Producto,
+            CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio,
+            'electronico'
+        FROM ProductosNoDuplicados;
 
-	DROP TABLE #Electronico
+        DROP TABLE #Electronico
+
+        PRINT('+ Importaci贸n de Productos Electr贸nicos completada exitosamente.');
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la importaci贸n de Productos Electr贸nicos: %s', 16, 1, @ErrorMessage);
+    END CATCH;
 END;
 GO
-
-/*
-CREATE OR ALTER PROCEDURE Productos.ImportarCatalogoDesdeCSV
-    @RutaArchivo NVARCHAR(255)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Crear la tabla temporal para almacenar el contenido del archivo
-    CREATE TABLE #Catalogos (
-        Fila VARCHAR(MAX)
-    );
-
-    -- Declarar la variable @SQL para construir la consulta din醡ica
-    DECLARE @SQL NVARCHAR(MAX);
-
-    -- Construir la consulta BULK INSERT de manera din醡ica
-    SET @SQL = N'BULK INSERT #Catalogos
-                FROM ''' + @RutaArchivo + ''' 
-                WITH (
-                    FIELDTERMINATOR = '','',  -- Cada l韓ea como una fila
-                    ROWTERMINATOR = ''0x0A'',   -- Especificar el terminador de l韓ea (nuevo rengl髇)
-                    FIRSTROW = 2,               -- Comienza desde la segunda fila (omite encabezado)
-                    CODEPAGE = ''65001''
-                );';
-
-    -- Ejecutar la consulta din醡ica
-    EXEC sp_executesql @SQL;
-
-	select * from #Catalogos
-
-
-	SELECT 
-    CAST(CatalogoDividido.[1] as int) as Id,
-    CatalogoDividido.[2],
-    CatalogoDividido.[3],
-    CatalogoDividido.[4],
-    CatalogoDividido.[5],
-    CatalogoDividido.[6],
-    CatalogoDividido.[7] as Fecha
-FROM (
-    SELECT 
-        FilaId,
-        ROW_NUMBER() OVER (PARTITION BY FilaId ORDER BY (SELECT NULL)) AS RowNum,
-        Split.value AS Valor
-    FROM (
-        SELECT Fila, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS FilaId
-        FROM #Catalogos
-    ) AS CatalogosConFilaId
-    CROSS APPLY STRING_SPLIT(Fila, ',') AS Split
-) AS ValoresDivididos
-PIVOT (
-    MAX(Valor) FOR RowNum IN ([1], [2], [3], [4], [5], [6], [7])
-) AS CatalogoDividido;
-
-    -- Eliminar la tabla temporal
-    --DROP TABLE #Catalogo;
-END;
-GO
-*/

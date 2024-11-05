@@ -5,26 +5,27 @@
 USE Com2900G17;
 GO
 
--- Eliminaci髇 de tablas si existen
+-- Eliminaci贸n de tablas si existen
 DROP TABLE IF EXISTS Administracion.Empleado;
 DROP TABLE IF EXISTS Administracion.Sucursal;
 GO
 
 BEGIN TRY
-    -- Creaci髇 del esquema Administracion si no existe
+    -- Creaci贸n del esquema Administracion si no existe
     IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Administracion')
         EXEC('CREATE SCHEMA Administracion');
 
-    -- Creaci髇 de tabla Administracion.Sucursal
+    -- Creaci贸n de tabla Administracion.Sucursal
     CREATE TABLE Administracion.Sucursal (
+        IdSucursal INT IDENTITY(1,1) PRIMARY KEY,
         Ciudad CHAR(10) NOT NULL,
-        Sucursal VARCHAR(20) PRIMARY KEY NOT NULL,
+        Sucursal VARCHAR(20) NOT NULL,
         Direccion VARCHAR(100) NOT NULL UNIQUE, -- Que no sea la misma sucursal
         Horario VARCHAR(45) NOT NULL,
         Telefono VARCHAR(10) NOT NULL CHECK (TRY_CAST(Telefono AS INT) IS NOT NULL)
     );
 
-    -- Creaci髇 de tabla Administracion.Empleado
+    -- Creaci贸n de tabla Administracion.Empleado
     CREATE TABLE Administracion.Empleado (
         IdEmpleado INT PRIMARY KEY,
         Nombre VARCHAR(50) NOT NULL,
@@ -40,8 +41,10 @@ BEGIN TRY
         CONSTRAINT FK_Sucursal FOREIGN KEY (Sucursal) 
 		REFERENCES Administracion.Sucursal(Sucursal) ON DELETE CASCADE ON UPDATE CASCADE
     );
-    PRINT 'Esquema y tablas en [Administracion] creados correctamente.';
+    PRINT '+ Esquema y tablas en [Administracion] creados correctamente.';
 END TRY
 BEGIN CATCH
-    THROW 50000, 'Error durante la creaci髇 del esquema o las tablas en [Administracion]: ', 1;
+    -- Captura y muestra el error si ocurre uno
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    RAISERROR('+ Error durante la creaci贸n del esquema o las tablas en [Administracion]: %s', 16, 1, @ErrorMessage);
 END CATCH;
