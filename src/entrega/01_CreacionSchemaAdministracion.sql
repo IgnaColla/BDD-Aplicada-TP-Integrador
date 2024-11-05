@@ -19,7 +19,7 @@ BEGIN TRY
     CREATE TABLE Administracion.Sucursal (
         IdSucursal INT IDENTITY(1,1) PRIMARY KEY,
         Ciudad CHAR(10) NOT NULL,
-        Sucursal VARCHAR(20) NOT NULL,
+        Sucursal VARCHAR(20) NOT NULL UNIQUE,
         Direccion VARCHAR(100) NOT NULL UNIQUE, -- Que no sea la misma sucursal
         Horario VARCHAR(45) NOT NULL,
         Telefono VARCHAR(10) NOT NULL CHECK (TRY_CAST(Telefono AS INT) IS NOT NULL)
