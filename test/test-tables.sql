@@ -1,4 +1,8 @@
 -- VER TABLAS
+
+USE Com2900G17
+GO
+
 select * from Administracion.Empleado
 select * from Administracion.Sucursal
 

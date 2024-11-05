@@ -7,9 +7,11 @@ GO
 
 EXEC Administracion.ImportarSucursalesDesdeCSV
 @RutaArchivo = 'E:\Lauty\Facultad\2024\BBDDA\TP\TP_Integrador\dataset\Sucursal.csv'
+GO
 
 EXEC Administracion.ImportarEmpleadosDesdeCSV
 @RutaArchivo = 'E:\Lauty\Facultad\2024\BBDDA\TP\TP_Integrador\dataset\Empleados.csv'
+GO
 
 EXEC Productos.ImportarCategoriasDesdeCSV
 @RutaArchivo = 'E:\Lauty\Facultad\2024\BBDDA\TP\TP_Integrador\dataset\ClasificacionProductos.csv'
