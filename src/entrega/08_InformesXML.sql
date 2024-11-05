@@ -94,6 +94,30 @@ BEGIN
 		ROOT('Venta.Ventas'),
 		TYPE;
 END
+GO
+
+CREATE OR ALTER PROCEDURE Ventas.InformeTop5MasPorSemanaXML
+@mes date = '01'
+AS
+BEGIN
+	with ranking as(
+		select 
+		vt.Producto,
+		CEILING(DATEPART(DAY, Fecha) / 7.0) AS SemanaDelMes,
+		SUM(vt.Cantidad) as Ventas
+		from Ventas.Venta vt
+		where month(vt.Fecha) = '03' --@mes
+		group by vt.Producto, CEILING(DATEPART(DAY, Fecha) / 7.0)
+	)
+	select top(5) Producto, Ventas from ranking where SemanaDelMes = 1
+	order by Ventas desc
+	/*
+	ORDER BY SUM(vt.Cantidad) DESC
+		FOR XML RAW('InformeTrimestral'),
+		ROOT('Venta.Ventas'),
+		TYPE;
+	*/
+END
 
 exec Ventas.InformeMenualDiarioXML
 exec Ventas.InformeMensualXML

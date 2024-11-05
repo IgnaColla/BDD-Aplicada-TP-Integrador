@@ -12,8 +12,8 @@ BEGIN
 END
 GO
 CREATE TABLE Ventas.MedioDePago(
-	Id int identity,
-	Codigo VARCHAR(15) PRIMARY KEY,
+	Id int identity PRIMARY KEY,
+	Codigo VARCHAR(15) UNIQUE,
     Descripcion VARCHAR(25)          
 )
 GO
@@ -38,7 +38,7 @@ CREATE TABLE Ventas.Venta(
 	REFERENCES Ventas.MedioDePago(Codigo)
 	ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT FK_Venta_Producto FOREIGN KEY(Producto, PrecioUnitario) 
-	REFERENCES Productos.Catalogo(Nombre, Precio)
-	ON DELETE CASCADE ON UPDATE CASCADE
+    REFERENCES Productos.Producto(Producto, Precio)
+	ON DELETE CASCADE ON UPDATE CASCADE,
 )
 GO

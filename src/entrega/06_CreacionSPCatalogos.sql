@@ -9,7 +9,12 @@ BEGIN
 
     DECLARE @SQL NVARCHAR(MAX);
 
-    SET @SQL = N'BULK INSERT Productos.ClasificacionProducto
+	CREATE TABLE #Clasificacion(
+		LineaProducto VARCHAR(15),
+		Categoria VARCHAR(40) UNIQUE
+	)
+
+    SET @SQL = N'BULK INSERT #Clasificacion
                 FROM ''' + @RutaArchivo + ''' 
                 WITH (
                     FIELDTERMINATOR = '';'',  -- Cambia el separador según sea necesario
@@ -18,10 +23,17 @@ BEGIN
 					CODEPAGE = ''65001''
 				);';
     EXEC sp_executesql @SQL;
+
+	INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
+	SELECT * FROM #Clasificacion
+
+	INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
+	VALUES('Importado', 'importado'),
+	('Electronico', 'electronico')
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Productos.ImportarCatalogoDesdeCSV
+CREATE OR ALTER PROCEDURE Productos.ImportarCatalogoProductoDesdeCSV
     @RutaArchivo NVARCHAR(255)
 AS
 BEGIN
@@ -29,7 +41,17 @@ BEGIN
 
     DECLARE @SQL NVARCHAR(MAX);
 
-    SET @SQL = N'BULK INSERT Productos.Catalogo
+	CREATE TABLE #Catalogo(
+		Id INT,             
+		Categoria VARCHAR(40),     
+		Nombre VARCHAR(100),               
+		Precio DECIMAL(10, 2),              
+		PrecioRef DECIMAL(10, 2) ,    
+		UnidadRef VARCHAR(10),       
+		Fecha varchar(50)                     
+		)
+
+    SET @SQL = N'BULK INSERT #Catalogo
                 FROM ''' + @RutaArchivo + ''' 
                 WITH (
                     FIELDTERMINATOR = '';'',  -- Cambia el separador según sea necesario
@@ -38,6 +60,12 @@ BEGIN
 					CODEPAGE = ''65001''
 				);';
     EXEC sp_executesql @SQL;
+
+	INSERT INTO Productos.Producto
+	SELECT DISTINCT Nombre, Precio FROM #Catalogo
+
+	INSERT INTO Productos.Catalogo
+	SELECT * FROM #Catalogo
 END;
 GO
 
@@ -72,22 +100,28 @@ BEGIN
 				);';
     EXEC sp_executesql @SQL;
 
-	;WITH ProductosNoDuplicados AS (
-        SELECT 
-            ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
-            i.Nombre,
-            Price
-        FROM #ProductoImportado i
-        LEFT JOIN Productos.Catalogo ca ON i.Nombre = ca.Nombre
-        WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
-    )
+	INSERT INTO Productos.Producto(Producto, Precio)
+	SELECT DISTINCT Nombre, 
+	CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio
+	FROM #ProductoImportado
 
-	INSERT INTO Productos.Catalogo(Id, Nombre, Precio)
-	SELECT 
-		Id,
-		Nombre,
-		CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio
-	FROM ProductosNoDuplicados;
+	;WITH ProductosNoDuplicados AS (
+    SELECT
+        ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
+        i.Nombre,
+        i.Price
+    FROM #ProductoImportado i
+    LEFT JOIN Productos.Catalogo ca ON i.Nombre = ca.Nombre
+    WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
+	)
+
+	INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
+	select 
+			Id, 
+			Nombre, 
+			CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio,
+			'importado'
+	from ProductosNoDuplicados
 	
 	DROP TABLE #ProductoImportado
 END;
@@ -130,6 +164,12 @@ BEGIN
     SELECT DISTINCT Producto, PrecioUnitario
     FROM #Electronico;
 
+	INSERT INTO Productos.Producto(Producto, Precio)
+	SELECT 
+			Producto, 
+			CAST(REPLACE(PrecioUnitario, ',', '.') AS DECIMAL(10, 2)) AS Precio
+	FROM #ElectronicoSinDuplicados
+
 	;WITH ProductosNoDuplicados AS (
     SELECT
         ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
@@ -140,11 +180,12 @@ BEGIN
     WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
 	)
 
-	INSERT INTO Productos.Catalogo(Id, Nombre, Precio)
+	INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
 	SELECT
 		Id,
 		Producto,
-		CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio
+		CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio,
+		'electronico'
 	FROM ProductosNoDuplicados;
 
 	DROP TABLE #Electronico

@@ -3,9 +3,7 @@ GO
 
 DROP TABLE IF EXISTS Productos.Catalogo
 GO
-DROP TABLE IF EXISTS Productos.ProductoImportado
-GO
-DROP TABLE IF EXISTS Productos.ProductoElectronico
+DROP TABLE IF EXISTS Productos.Producto
 GO
 DROP TABLE IF EXISTS Productos.ClasificacionProducto
 GO
@@ -16,10 +14,17 @@ BEGIN
     EXEC('CREATE SCHEMA Productos')
 END
 CREATE TABLE Productos.ClasificacionProducto(
-	LineaProducto VARCHAR(15),  -- Categoria
-    Producto VARCHAR(40) PRIMARY KEY  -- Nombre
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	LineaProducto VARCHAR(15),
+    Categoria VARCHAR(40) UNIQUE
 )
 GO
+CREATE TABLE Productos.Producto(
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	Producto VARCHAR(100),
+	Precio DECIMAL(10,2),
+	UNIQUE(Producto, Precio)
+)
 CREATE TABLE Productos.Catalogo(
     Id INT,             
     Categoria VARCHAR(40),     
@@ -29,8 +34,10 @@ CREATE TABLE Productos.Catalogo(
     UnidadRef VARCHAR(10),       
     Fecha varchar(50)                     
 	CONSTRAINT FK_Catalogo_Clasificacion FOREIGN KEY(Categoria) 
-    REFERENCES Productos.ClasificacionProducto(Producto)
+    REFERENCES Productos.ClasificacionProducto(Categoria)
 	ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT PK_Catalogo_Precio_Producto PRIMARY KEY (Nombre, Precio)
+	CONSTRAINT FK_Catalogo_Producto_Precio FOREIGN KEY(Nombre, Precio) 
+    REFERENCES Productos.Producto(Producto, Precio)
+	ON DELETE CASCADE ON UPDATE CASCADE,
 )
 GO

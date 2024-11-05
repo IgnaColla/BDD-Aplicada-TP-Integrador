@@ -8,6 +8,7 @@ GO
 -- Eliminación de tablas si existen
 DROP TABLE IF EXISTS Administracion.Empleado;
 DROP TABLE IF EXISTS Administracion.Sucursal;
+GO
 
 BEGIN TRY
     -- Creación del esquema Administracion si no existe
