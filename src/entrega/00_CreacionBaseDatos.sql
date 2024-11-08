@@ -6,7 +6,7 @@
 -- DB: Com2900G17
 -- SCHEMAS: Administracion, Productos, Ventas
 -- TABLAS: UpperCamelCase 
--- CAMPOS: camel_case+
+-- CAMPOS: UpperCamelCase
 -- ROLES: UpperCamelCase
 
 BEGIN TRY    
