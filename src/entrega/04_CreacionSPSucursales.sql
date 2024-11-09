@@ -1,6 +1,6 @@
--------------------------------------------------------------------
--------------------  Stored Procedures SUCURSAL -------------------
--------------------------------------------------------------------
+--------------------------------------------------------------------
+-------------------  Stored Procedures SUCURSAL  -------------------
+--------------------------------------------------------------------
 
 -- #################### Creacion ####################
 
@@ -16,7 +16,15 @@ BEGIN
     BEGIN TRY
         DECLARE @SQL NVARCHAR(MAX);
 
-        SET @SQL = N'BULK INSERT Administracion.Sucursal
+		CREATE TABLE #Sucursal (
+			Ciudad VARCHAR(20) NOT NULL,
+			Reemplazo VARCHAR(20) NOT NULL,
+			Direccion VARCHAR(100) NOT NULL,
+			Horario VARCHAR(45) NOT NULL,
+			Telefono VARCHAR(10) NOT NULL
+    );
+
+        SET @SQL = N'BULK INSERT #Sucursal
                     FROM ''' + @RutaArchivo + ''' 
                     WITH (
                         FIELDTERMINATOR = '';'',  -- Cambia el separador según sea necesario
@@ -26,6 +34,15 @@ BEGIN
                     );';
         
         EXEC sp_executesql @SQL;
+
+		INSERT Administracion.Sucursal(Ciudad, Direccion, Telefono, Horario)
+		SELECT	su.Reemplazo, 
+				TRIM(REPLACE(su.Direccion, CHAR(160), '')), 
+				su.Telefono, 
+				REPLACE(su.Horario, '"', '') 
+		FROM #Sucursal su
+
+		DROP TABLE #Sucursal
 
 		PRINT('+ Importación de sucursales completada exitosamente.');
     END TRY

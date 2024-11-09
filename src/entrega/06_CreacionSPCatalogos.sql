@@ -1,6 +1,6 @@
--------------------------------------------------------------------
--------------------  Stored Procedures CATALOGO -------------------
--------------------------------------------------------------------
+--------------------------------------------------------------------
+-------------------  Stored Procedures CATALOGO  -------------------
+--------------------------------------------------------------------
 
 -- #################### Creacion ####################
 
@@ -32,11 +32,12 @@ BEGIN
         
         EXEC sp_executesql @SQL;
 
-        INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
-        SELECT * FROM #Clasificacion
+        INSERT Productos.Linea
+        SELECT DISTINCT cl.LineaProducto FROM #Clasificacion cl
 
-        INSERT INTO Productos.ClasificacionProducto(LineaProducto, Categoria)
-        VALUES('Importado', 'importado'), ('Electronico', 'electronico')
+        INSERT Productos.Categoria
+        SELECT DISTINCT cl.Categoria, li.Id FROM #Clasificacion cl
+		INNER JOIN Productos.Linea li ON li.LineaProducto = cl.LineaProducto 
 
         PRINT '+ Importación de categorias completada exitosamente.';
     END TRY
@@ -64,25 +65,32 @@ BEGIN
             Precio DECIMAL(10, 2),              
             PrecioRef DECIMAL(10, 2) ,    
             UnidadRef VARCHAR(10),       
-            Fecha varchar(50)                     
-            )
+            Fecha CHAR(20)                   
+		)
 
         SET @SQL = N'BULK INSERT #Catalogo
                     FROM ''' + @RutaArchivo + ''' 
                     WITH (
                         FIELDTERMINATOR = '';'',  -- Cambia el separador seg�n sea necesario
-                        ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila seg�n sea necesario
+                        ROWTERMINATOR = ''\n'',   -- Cambia el terminador de fila segun sea necesario
                         FIRSTROW = 2,              -- Si el archivo tiene encabezados, comienza desde la segunda fila
                         CODEPAGE = ''65001''
                     );';
         
         EXEC sp_executesql @SQL;
 
-        INSERT INTO Productos.Producto
-        SELECT DISTINCT Nombre, Precio FROM #Catalogo
+		INSERT Productos.Catalogo(Id, Producto, Precio, PrecioRef, UnidadRef, Fecha)
+		SELECT ca.Id, ca.Nombre, ca.Precio, ca.PrecioRef, 
+		ca.UnidadRef, ca.Fecha 
+		FROM #Catalogo ca
 
-        INSERT INTO Productos.Catalogo
-        SELECT * FROM #Catalogo
+		INSERT Productos.CatalogoCategoria
+		SELECT ca.Id, ct.Id FROM #Catalogo ca
+		INNER JOIN Productos.Categoria ct ON ca.Categoria = ct.Categoria
+		INNER JOIN Productos.Linea li ON ct.IdLinea = li.Id
+
+		
+		DROP TABLE #Catalogo
 
         PRINT('+ Importación del catálogo completada exitosamente.');
     END TRY
@@ -92,7 +100,6 @@ BEGIN
     END CATCH;
 END;
 GO
-
 
 CREATE OR ALTER PROCEDURE Productos.AgregarCatalogoProductosImportadosDesdeCSV
     @RutaArchivo NVARCHAR(255)
@@ -127,27 +134,21 @@ BEGIN
         
         EXEC sp_executesql @SQL;
 
-        INSERT INTO Productos.Producto(Producto, Precio)
-        SELECT DISTINCT Nombre, 
-        CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio
-        FROM #ProductoImportado
-
         ;WITH ProductosNoDuplicados AS (
-        SELECT
+        SELECT DISTINCT 
             ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
             i.Nombre,
             i.Price
         FROM #ProductoImportado i
-        LEFT JOIN Productos.Catalogo ca ON i.Nombre = ca.Nombre
-        WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
+        LEFT JOIN Productos.Catalogo ca ON i.Nombre = ca.Producto
+        WHERE ca.Producto IS NULL  -- Solo insertar productos que no existan en la tabla principal
         )
 
-        INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
+        INSERT INTO Productos.Catalogo(Id, Producto, Precio)
         select 
                 Id, 
                 Nombre, 
-                CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio,
-                'importado'
+                CAST(REPLACE(REPLACE(Price, '$', ''), ',', '.') AS DECIMAL(10, 2)) AS Precio
         from ProductosNoDuplicados
 
         DROP TABLE #ProductoImportado
@@ -201,28 +202,21 @@ BEGIN
         SELECT DISTINCT Producto, PrecioUnitario
         FROM #Electronico;
 
-        INSERT INTO Productos.Producto(Producto, Precio)
-        SELECT 
-                Producto, 
-                CAST(REPLACE(PrecioUnitario, ',', '.') AS DECIMAL(10, 2)) AS Precio
-        FROM #ElectronicoSinDuplicados
-
         ;WITH ProductosNoDuplicados AS (
         SELECT
             ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + @LastCatalogoID AS Id,
             e.Producto,
             PrecioUnitario as Precio
         FROM #ElectronicoSinDuplicados e
-        LEFT JOIN Productos.Catalogo ca ON e.Producto = ca.Nombre
-        WHERE ca.Nombre IS NULL  -- Solo insertar productos que no existan en la tabla principal
+        LEFT JOIN Productos.Catalogo ca ON e.Producto = ca.Producto
+        WHERE ca.Producto IS NULL  -- Solo insertar productos que no existan en la tabla principal
         )
 
-        INSERT INTO Productos.Catalogo(Id, Nombre, Precio, Categoria)
+        INSERT INTO Productos.Catalogo(Id, Producto, Precio)
         SELECT
             Id,
             Producto,
-            CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio,
-            'electronico'
+            CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio
         FROM ProductosNoDuplicados;
 
         DROP TABLE #Electronico

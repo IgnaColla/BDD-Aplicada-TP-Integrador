@@ -16,7 +16,21 @@ BEGIN
     BEGIN TRY
         DECLARE @SQL NVARCHAR(MAX);
 
-        SET @SQL = N'BULK INSERT Administracion.Empleado
+		CREATE TABLE #Empleado (
+			Legajo INT PRIMARY KEY,
+			Nombre VARCHAR(50) NOT NULL,
+			Apellido VARCHAR(50) NOT NULL,
+			DNI CHAR(8) NOT NULL,
+			Direccion VARCHAR(255) NOT NULL,
+			EmailPersonal VARCHAR(100),
+			EmailEmpresa VARCHAR(100),
+			CUIL CHAR(11),
+			Cargo VARCHAR(20),
+			Sucursal VARCHAR(20),
+			Turno VARCHAR(20)
+		)
+
+        SET @SQL = N'BULK INSERT #Empleado
                     FROM ''' + @RutaArchivo + ''' 
                     WITH (
                         FIELDTERMINATOR = '';'',  -- Cambia el separador seg�n sea necesario
@@ -29,6 +43,22 @@ BEGIN
 
         EXEC sp_executesql @SQL;
 
+		INSERT Administracion.Cargo
+		select DISTINCT em.Cargo FROM #Empleado em
+
+		INSERT Administracion.Empleado
+		SELECT		em.Legajo, 
+					REPLACE(em.Nombre, '"', ''), 
+					em.Apellido, 
+					em.DNI,
+					em.Direccion, 
+					REPLACE(REPLACE(REPLACE(REPLACE(em.EmailPersonal, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), ''),
+					REPLACE(REPLACE(REPLACE(REPLACE(em.EmailEmpresa, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), ''),
+					em.CUIL, ca.Id, su.Id, em.Turno
+		FROM #Empleado em 
+		INNER JOIN Administracion.Sucursal su ON em.Sucursal = su.Ciudad 
+		INNER JOIN Administracion.Cargo ca ON em.Cargo = ca.Cargo 
+
         PRINT '+ Importación de empleados completada exitosamente.';
     END TRY
     BEGIN CATCH
@@ -38,6 +68,7 @@ BEGIN
 END;
 GO
 
+/*
 
 CREATE OR ALTER PROCEDURE Administracion.InsertarEmpleado
     @IdEmpleado INT,
@@ -178,7 +209,6 @@ END;
 GO
 
 
-/*
 CREATE OR ALTER PROCEDURE Administracion.InsertarOActualizarEmpleado
     @IdEmpleado INT,
     @Nombre VARCHAR(50),
