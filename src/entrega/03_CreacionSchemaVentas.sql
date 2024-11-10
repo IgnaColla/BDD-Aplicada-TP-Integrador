@@ -1,6 +1,6 @@
----------------------------------------------------------------
--------------------  CREACION SCHEMA VENTAS -------------------
----------------------------------------------------------------
+----------------------------------------------------------------
+-------------------  CREACION SCHEMA VENTAS  -------------------
+----------------------------------------------------------------
 
 USE Com2900G17;
 GO
@@ -30,9 +30,9 @@ BEGIN TRY
 		Id INT IDENTITY(1,1) PRIMARY KEY,
 		NumeroFactura VARCHAR(15) UNIQUE NOT NULL,
 		TipoFactura CHAR(1) NOT NULL CHECK (TipoFactura IN ('A', 'B', 'C')),
-		Fecha DATE NOT NULL,                           -- Fecha de la venta
-        Hora TIME NOT NULL,                            -- Hora de la venta
-		IdMedioPago INT NOT NULL,              -- Medio de pago, tamaño ajustado
+		Fecha DATE NOT NULL,                         
+        Hora TIME NOT NULL,                            
+		IdMedioPago INT NOT NULL,              
 		Subtotal DECIMAL(10,2) NOT NULL,
 		Total DECIMAL(10,2) NOT NULL,
 		IdentificadorPago VARCHAR(40),
@@ -67,9 +67,9 @@ BEGIN TRY
         Genero CHAR(1) NOT NULL CHECK(Genero IN('F', 'M')),                      
 		IdEmpleado INT,
 		CONSTRAINT FK_Venta_Empleado FOREIGN KEY(IdEmpleado) 
-		REFERENCES Administracion.Empleado(Legajo) ON UPDATE CASCADE,
+		REFERENCES Administracion.Empleado(Legajo) ON DELETE SET NULL ON UPDATE CASCADE,
 		CONSTRAINT FK_Venta_Sucursal FOREIGN KEY(IdSucursal) 
-		REFERENCES Administracion.Sucursal(Id) ON DELETE SET NULL ON UPDATE CASCADE,
+		REFERENCES Administracion.Sucursal(Id),
         CONSTRAINT FK_Venta_Factura FOREIGN KEY(IdFactura) 
 		REFERENCES Ventas.Factura(Id) ON DELETE CASCADE ON UPDATE CASCADE,
 	)
@@ -78,6 +78,6 @@ BEGIN TRY
     PRINT('+ Esquema y tablas en [Ventas] creados correctamente.');
 END TRY
 BEGIN CATCH
-    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
     RAISERROR('+ Error durante la creación del esquema o las tablas en [Ventas]: %s', 16, 1, @ErrorMessage);
 END CATCH;

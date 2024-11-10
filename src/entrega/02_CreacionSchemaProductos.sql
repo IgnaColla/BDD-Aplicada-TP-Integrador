@@ -1,6 +1,6 @@
-------------------------------------------------------------------
--------------------  CREACION SCHEMA PRODUCTOS -------------------
-------------------------------------------------------------------
+-------------------------------------------------------------------
+-------------------  CREACION SCHEMA PRODUCTOS  -------------------
+-------------------------------------------------------------------
 
 USE Com2900G17;
 GO
@@ -36,12 +36,12 @@ BEGIN TRY
 
 	-- Creación de tabla Catalogo
     CREATE TABLE Productos.Catalogo(
-        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Id INT PRIMARY KEY,
 		Producto VARCHAR(100) NOT NULL, 
-        IdLinea INT,     
-        Precio DECIMAL(10, 2) NOT NULL,               
-        UnidadRef VARCHAR(10) NOT NULL,       
-        Fecha DATETIME NOT NULL                    
+        Precio DECIMAL(10, 2) NOT NULL,    
+		PrecioRef DECIMAL(10, 2),    
+        UnidadRef VARCHAR(10),       
+        Fecha CHAR(20)                     
     )
 
 	-- Creación de una tabla intermedia 

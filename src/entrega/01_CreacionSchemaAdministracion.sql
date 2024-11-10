@@ -22,6 +22,7 @@ BEGIN TRY
     CREATE TABLE Administracion.Sucursal (
         Id INT IDENTITY(1,1) PRIMARY KEY,
         Ciudad VARCHAR(20) NOT NULL,
+		Nombre VARCHAR(20) NOT NULL,
         Direccion VARCHAR(100) NOT NULL,
         Horario VARCHAR(45) NOT NULL,
         Telefono VARCHAR(10) NOT NULL,
@@ -31,7 +32,7 @@ BEGIN TRY
 	-- Creación de tabla Cargo
 	CREATE TABLE Administracion.Cargo(
 		Id INT IDENTITY(1,1) PRIMARY KEY,
-		Cargo VARCHAR(30) NOT NULL
+		Cargo VARCHAR(30) NOT NULL UNIQUE
 	);
 
     -- Creación de tabla Empleado
@@ -43,10 +44,11 @@ BEGIN TRY
         Direccion VARCHAR(255) NOT NULL,
         EmailPersonal VARCHAR(100) NULL CHECK (EmailPersonal LIKE '%@%.%'),
         EmailEmpresa VARCHAR(100) NULL CHECK (EmailEmpresa LIKE '%@%.%'),
-        CUIL CHAR(11) CHECK (TRY_CAST(CUIL AS BIGINT) IS NOT NULL AND LEN(CUIL) = 11),
+        CUIL CHAR(11) CHECK (TRY_CAST(CUIL AS BIGINT) IS NOT NULL AND LEN(CUIL) = 11 OR CUIL IS NULL),
         IdCargo INT NOT NULL,
         IdSucursal INT,
         Turno VARCHAR(20) CHECK (Turno IN ('TM', 'TT', 'Jornada Completa')),
+		Estado CHAR(1) CHECK (Estado IN('A', 'I')),
         CONSTRAINT FK_Sucursal FOREIGN KEY (IdSucursal) 
 		REFERENCES Administracion.Sucursal(Id) ON DELETE SET NULL ON UPDATE CASCADE,
 		CONSTRAINT FK_Cargo FOREIGN KEY (IdCargo) 

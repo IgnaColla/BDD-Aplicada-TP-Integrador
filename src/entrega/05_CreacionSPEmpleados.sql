@@ -44,7 +44,12 @@ BEGIN
         EXEC sp_executesql @SQL;
 
 		INSERT Administracion.Cargo
-		select DISTINCT em.Cargo FROM #Empleado em
+		SELECT DISTINCT em.Cargo FROM #Empleado em
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Administracion.Cargo c
+            WHERE em.Cargo = c.Cargo
+        );
 
 		INSERT Administracion.Empleado
 		SELECT		em.Legajo, 
@@ -54,15 +59,20 @@ BEGIN
 					em.Direccion, 
 					REPLACE(REPLACE(REPLACE(REPLACE(em.EmailPersonal, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), ''),
 					REPLACE(REPLACE(REPLACE(REPLACE(em.EmailEmpresa, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), ''),
-					em.CUIL, ca.Id, su.Id, em.Turno
+					em.CUIL, ca.Id, su.Id, em.Turno, 'A'
 		FROM #Empleado em 
 		INNER JOIN Administracion.Sucursal su ON em.Sucursal = su.Ciudad 
 		INNER JOIN Administracion.Cargo ca ON em.Cargo = ca.Cargo 
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Administracion.Empleado e
+            WHERE em.Legajo = e.Legajo
+        );
 
         PRINT '+ Importación de empleados completada exitosamente.';
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage NVARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación de empleados: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;

@@ -35,12 +35,19 @@ BEGIN
         
         EXEC sp_executesql @SQL;
 
-		INSERT Administracion.Sucursal(Ciudad, Direccion, Telefono, Horario)
-		SELECT	su.Reemplazo, 
+		INSERT Administracion.Sucursal(Ciudad, Nombre, Direccion, Telefono, Horario)
+		SELECT	su.Reemplazo,
+				su.Ciudad,
 				TRIM(REPLACE(su.Direccion, CHAR(160), '')), 
 				su.Telefono, 
 				REPLACE(su.Horario, '"', '') 
 		FROM #Sucursal su
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Administracion.Sucursal s
+            WHERE s.Ciudad = su.Reemplazo 
+              AND s.Direccion = TRIM(REPLACE(su.Direccion, CHAR(160), ''))
+        );
 
 		DROP TABLE #Sucursal
 

@@ -34,15 +34,25 @@ BEGIN
 
         INSERT Productos.Linea
         SELECT DISTINCT cl.LineaProducto FROM #Clasificacion cl
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Productos.Linea li
+            WHERE cl.LineaProducto = li.LineaProducto
+        );
 
         INSERT Productos.Categoria
         SELECT DISTINCT cl.Categoria, li.Id FROM #Clasificacion cl
 		INNER JOIN Productos.Linea li ON li.LineaProducto = cl.LineaProducto 
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Productos.Categoria ca
+            WHERE cl.Categoria = ca.Categoria
+        );
 
         PRINT '+ Importación de categorias completada exitosamente.';
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación de categorias: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -50,7 +60,7 @@ GO
 
 
 CREATE OR ALTER PROCEDURE Productos.ImportarCatalogoProductoDesdeCSV
-    @RutaArchivo NVARCHAR(255)
+    @RutaArchivo VARCHAR(255)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -83,11 +93,21 @@ BEGIN
 		SELECT ca.Id, ca.Nombre, ca.Precio, ca.PrecioRef, 
 		ca.UnidadRef, ca.Fecha 
 		FROM #Catalogo ca
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Productos.Catalogo ct
+            WHERE ca.Nombre = ct.Producto
+        );
 
 		INSERT Productos.CatalogoCategoria
 		SELECT ca.Id, ct.Id FROM #Catalogo ca
 		INNER JOIN Productos.Categoria ct ON ca.Categoria = ct.Categoria
 		INNER JOIN Productos.Linea li ON ct.IdLinea = li.Id
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Productos.Catalogo ct
+            WHERE ca.Nombre = ct.Producto
+        );
 
 		
 		DROP TABLE #Catalogo
@@ -95,14 +115,14 @@ BEGIN
         PRINT('+ Importación del catálogo completada exitosamente.');
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación del catálogo: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
 
 CREATE OR ALTER PROCEDURE Productos.AgregarCatalogoProductosImportadosDesdeCSV
-    @RutaArchivo NVARCHAR(255)
+    @RutaArchivo VARCHAR(255)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -156,7 +176,7 @@ BEGIN
         PRINT('+ Importación de Productos Importados completada exitosamente.');
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación de Productos Importados: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -224,7 +244,7 @@ BEGIN
         PRINT('+ Importación de Productos Electrónicos completada exitosamente.');
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación de Productos Electrónicos: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
