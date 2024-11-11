@@ -3,27 +3,36 @@
 USE Com2900G17
 GO
 
-Select ISNULL('Hello', (SELECT NOMBRE FROM Administracion.Sucursal WHERE Ciudad= 'San Justo' AND Direccion = 'Rivera Indarte 1234'));
-
-select * from Administracion.Empleado where Legajo = NULL or DNI = NULL
+select * from Administracion.Empleado
 select * from Administracion.Sucursal
+select * from Administracion.Cargo
 
-select * from Productos.ClasificacionProducto
-select * from Productos.Producto
+select * from Productos.CatalogoCategoria
+select * from Productos.Categoria
+select * from Productos.Linea
 select * from Productos.Catalogo order by id
 
-select * from Ventas.MedioDePago
 select * from Ventas.Venta
+select * from Ventas.DetalleFactura
+select * from Ventas.Factura
+select * from Ventas.NotaCredito
+select * from Ventas.MedioDePago
 
 --VACIAR TABLAS
 /*
 delete from Administracion.Empleado
 delete from Administracion.Sucursal
+delete from Administracion.Cargo
 
-delete from Productos.ClasificacionProducto
+delete from Productos.CatalogoCategoria
+delete from Productos.Categoria
+delete from Productos.Linea
 delete from Productos.Catalogo
-delete from Productos.Producto
 
-delete from Ventas.MedioDePago
+delete from Ventas.DetalleFactura
+delete from Ventas.Factura
 delete from Ventas.Venta
+delete from Ventas.NotaCredito
+delete from Ventas.MedioDePago
+
 */
