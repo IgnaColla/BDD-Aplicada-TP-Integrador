@@ -102,11 +102,10 @@ BEGIN
 		INSERT Productos.CatalogoCategoria
 		SELECT ca.Id, ct.Id FROM #Catalogo ca
 		INNER JOIN Productos.Categoria ct ON ca.Categoria = ct.Categoria
-		INNER JOIN Productos.Linea li ON ct.IdLinea = li.Id
 		WHERE NOT EXISTS (
             SELECT 1 
-            FROM Productos.Catalogo ct
-            WHERE ca.Nombre = ct.Producto
+            FROM Productos.CatalogoCategoria cc
+            WHERE cc.IdCatalogo = ca.Id AND cc.IdCategoria = ct.Id
         );
 
 		
