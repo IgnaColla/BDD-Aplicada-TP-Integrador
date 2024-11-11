@@ -110,6 +110,9 @@ BEGIN
         DELETE FROM Productos.Catalogo 
         WHERE Id = @IdCatalogo;
 
+		DELETE FROM Productos.CatalogoCategoria
+		where IdCatalogo = @IdCatalogo and IdCategoria = (SELECT id FROM Productos.Categoria WHERE Categoria = @Categoria)
+
         IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
         BEGIN
             RAISERROR('+ Catalogo inexistente.', 16, 1);
