@@ -51,23 +51,46 @@ BEGIN
             WHERE em.Cargo = c.Cargo
         );
 
+		WITH EmpleadoUnico AS (
+			SELECT 
+				em.Legajo,
+				REPLACE(em.Nombre, '"', '') AS Nombre,
+				em.Apellido,
+				em.DNI,
+				em.Direccion,
+				REPLACE(REPLACE(REPLACE(REPLACE(em.EmailPersonal, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), '') AS EmailPersonal,
+				REPLACE(REPLACE(REPLACE(REPLACE(em.EmailEmpresa, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), '') AS EmailEmpresa,
+				em.CUIL,
+				ca.Id AS CargoId,
+				su.Id AS SucursalId,
+				em.Turno,
+				'A' AS Estado,
+				ROW_NUMBER() OVER (PARTITION BY em.Legajo ORDER BY su.Id) AS RowNum
+			FROM #Empleado em
+			INNER JOIN Administracion.Sucursal su ON em.Sucursal = su.Ciudad
+			INNER JOIN Administracion.Cargo ca ON em.Cargo = ca.Cargo
+			WHERE NOT EXISTS (
+				SELECT 1 
+				FROM Administracion.Empleado e
+				WHERE em.Legajo = e.Legajo
+			)
+		)
 		INSERT Administracion.Empleado
-		SELECT		em.Legajo, 
-					REPLACE(em.Nombre, '"', ''), 
-					em.Apellido, 
-					em.DNI,
-					em.Direccion, 
-					REPLACE(REPLACE(REPLACE(REPLACE(em.EmailPersonal, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), ''),
-					REPLACE(REPLACE(REPLACE(REPLACE(em.EmailEmpresa, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), ''),
-					em.CUIL, ca.Id, su.Id, em.Turno, 'A'
-		FROM #Empleado em 
-		INNER JOIN Administracion.Sucursal su ON em.Sucursal = su.Ciudad 
-		INNER JOIN Administracion.Cargo ca ON em.Cargo = ca.Cargo 
-		WHERE NOT EXISTS (
-            SELECT 1 
-            FROM Administracion.Empleado e
-            WHERE em.Legajo = e.Legajo
-        );
+		SELECT 
+			Legajo, 
+			Nombre, 
+			Apellido, 
+			DNI, 
+			Direccion, 
+			EmailPersonal, 
+			EmailEmpresa, 
+			CUIL, 
+			CargoId, 
+			SucursalId, 
+			Turno, 
+			Estado
+		FROM EmpleadoUnico
+		WHERE RowNum = 1;
 
         PRINT '+ Importación de empleados completada exitosamente.';
     END TRY
@@ -78,20 +101,21 @@ BEGIN
 END;
 GO
 
-/*
+
 
 CREATE OR ALTER PROCEDURE Administracion.InsertarEmpleado
-    @IdEmpleado INT,
-	@Nombre VARCHAR(50),
-    @Apellido VARCHAR(50),
+    @Legajo INT,
+    @Nombre VARCHAR(50),
+	@Apellido VARCHAR(50),
     @DNI CHAR(8),
     @Direccion VARCHAR(255),
     @EmailPersonal VARCHAR(100) = NULL,
     @EmailEmpresa VARCHAR(100) = NULL,
     @CUIL CHAR(11) = NULL,
     @Cargo VARCHAR(30),
-    @Sucursal VARCHAR(20),
-    @Turno VARCHAR(20)
+    @Sucursal VARCHAR(20) = NULL,
+    @Turno VARCHAR(20) = NULL,
+	@Estado CHAR(1) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -100,15 +124,20 @@ BEGIN
         BEGIN TRANSACTION;  -- Iniciar transacción
 
         -- Verificar si el empleado ya existe
-        IF EXISTS (SELECT 1 FROM Administracion.Empleado WHERE DNI = @DNI)	
+        IF EXISTS (SELECT 1 FROM Administracion.Empleado WHERE Legajo = @Legajo)	
         BEGIN
             RAISERROR('+ El empleado ya existe. Terminando el procedimiento.', 16, 1);
             RETURN;
         END
 
+		DECLARE @IdCargo INT = CASE WHEN @Cargo IS NOT NULL THEN (SELECT Id FROM Administracion.Cargo WHERE Cargo = @Cargo)END;
+		IF @IdCargo = NULL
+			RAISERROR('+ El cargo no existe o no fue insertado. Terminando el procedimiento.', 16, 1);
+		DECLARE @IdSucursal INT = CASE WHEN @Sucursal IS NOT NULL THEN (SELECT Id FROM Administracion.Sucursal WHERE Ciudad = @Sucursal) END;
+
         -- Insertar nuevo registro
-        INSERT INTO Administracion.Empleado (IdEmpleado, Nombre, Apellido, DNI, Direccion, EmailPersonal, EmailEmpresa, CUIL, Cargo, Sucursal, Turno)
-        VALUES (@IdEmpleado, @Nombre, @Apellido, @DNI, @Direccion, @EmailPersonal, @EmailEmpresa, @CUIL, @Cargo, @Sucursal, @Turno);
+        INSERT INTO Administracion.Empleado (Legajo, Nombre, Apellido, DNI, Direccion, EmailPersonal, EmailEmpresa, CUIL, IdCargo, IdSucursal, Turno, Estado)
+        VALUES (@Legajo, @Nombre, @Apellido, @DNI, @Direccion, @EmailPersonal, @EmailEmpresa, @CUIL, @IdCargo, @IdSucursal, @Turno, @Estado);
 
         COMMIT TRANSACTION;  -- Confirmar transacción
 
@@ -125,17 +154,18 @@ GO
 
 
 CREATE OR ALTER PROCEDURE Administracion.ActualizarEmpleado
-    @IdEmpleado INT,
-    @Nombre VARCHAR(50),
-    @Apellido VARCHAR(50),
-    @DNI CHAR(8),
-    @Direccion VARCHAR(255),
+    @Legajo INT = NULL,
+    @Nombre VARCHAR(50) = NULL,
+	@Apellido VARCHAR(50) = NULL,
+    @DNI CHAR(8) = NULL,
+    @Direccion VARCHAR(255) = NULL,
     @EmailPersonal VARCHAR(100) = NULL,
     @EmailEmpresa VARCHAR(100) = NULL,
     @CUIL CHAR(11) = NULL,
-    @Cargo VARCHAR(30),
-    @Sucursal VARCHAR(20),
-    @Turno VARCHAR(20)
+    @Cargo VARCHAR(30) = NULL,
+    @Sucursal VARCHAR(20) = NULL,
+    @Turno VARCHAR(20) = NULL,
+	@Estado CHAR(1) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -144,25 +174,28 @@ BEGIN
         BEGIN TRANSACTION;  -- Iniciar transacción
 
         -- Verificar si el empleado existe
-        IF NOT EXISTS (SELECT 1 FROM Administracion.Empleado WHERE IdEmpleado = @IdEmpleado)	
+        IF NOT EXISTS (SELECT 1 FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI)	
         BEGIN
             RAISERROR('+ El empleado ingresado no existe. Utilizar el procedimiento "InsertarEmpleado" para agregar un nuevo empleado.', 16, 1);
             RETURN;
         END
 
+		DECLARE @IdCargo INT = CASE WHEN @Cargo IS NOT NULL THEN (SELECT Id FROM Administracion.Cargo WHERE Cargo = @Cargo)ELSE NULL END;
+		DECLARE @IdSucursal INT = CASE WHEN @Sucursal IS NOT NULL THEN (SELECT Id FROM Administracion.Sucursal WHERE Ciudad = @Sucursal)ELSE NULL END;
+
         -- Actualizar empleado
         UPDATE Administracion.Empleado
-        SET Nombre = @Nombre,
-            Apellido = @Apellido,
-            DNI = @DNI,
-            Direccion = @Direccion,
-            EmailPersonal = @EmailPersonal,
-            EmailEmpresa = @EmailEmpresa,
-            CUIL = @CUIL,
-            Cargo = @Cargo,
-            Sucursal = @Sucursal,
-            Turno = @Turno
-        WHERE IdEmpleado = @IdEmpleado;
+        SET Nombre = CASE WHEN @Nombre IS NOT NULL THEN @Nombre ELSE (SELECT Nombre FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            Apellido = CASE WHEN @Apellido IS NOT NULL THEN @Apellido ELSE (SELECT Apellido FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            Direccion = CASE WHEN @Direccion IS NOT NULL THEN @Direccion ELSE (SELECT Direccion FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            EmailPersonal = CASE WHEN @EmailPersonal IS NOT NULL THEN @EmailPersonal ELSE (SELECT EmailPersonal FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            EmailEmpresa = CASE WHEN @EmailEmpresa IS NOT NULL THEN @EmailEmpresa ELSE (SELECT EmailEmpresa FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            CUIL = CASE WHEN @CUIL IS NOT NULL THEN @CUIL ELSE (SELECT CUIL FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            IdCargo = CASE WHEN @IdCargo IS NOT NULL THEN @IdCargo ELSE (SELECT IdCargo FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            IdSucursal = CASE WHEN @IdSucursal IS NOT NULL THEN @IdSucursal ELSE (SELECT IdSucursal FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+            Turno = CASE WHEN @Turno IS NOT NULL THEN @Turno ELSE (SELECT Turno FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END,
+			Estado = CASE WHEN @Estado IS NOT NULL THEN @Estado ELSE (SELECT Estado FROM Administracion.Empleado WHERE Legajo = @Legajo or DNI = @DNI) END
+        WHERE Legajo = @Legajo or DNI = @DNI;
 
         COMMIT TRANSACTION;  -- Confirmar transacción
 
@@ -179,16 +212,16 @@ GO
 
 
 CREATE OR ALTER PROCEDURE Administracion.EliminarEmpleado
-    @IdEmpleado INT = NULL, -- Parámetro opcional para buscar por IdEmpleado
+    @Legajo INT = NULL, -- Parámetro opcional para buscar por IdEmpleado
     @DNI CHAR(8) = NULL     -- Parámetro opcional para buscar por DNI
 AS
 BEGIN
     SET NOCOUNT ON;
 
     -- Verificar si se proporcionó algún parámetro válido
-    IF @IdEmpleado IS NULL AND @DNI IS NULL
+    IF @Legajo IS NULL AND @DNI IS NULL
     BEGIN
-        RAISERROR('+ Debe proporcionar el IdEmpleado o el DNI para eliminar un empleado.', 16, 1);
+        RAISERROR('+ Debe proporcionar el legajo o el DNI para eliminar un empleado.', 16, 1);
         RETURN;
     END
 
@@ -197,7 +230,7 @@ BEGIN
 
         -- Buscar empleado y eliminar
         DELETE FROM Administracion.Empleado 
-        WHERE (IdEmpleado = @IdEmpleado OR DNI = @DNI);
+        WHERE (Legajo = @Legajo OR DNI = @DNI);
 
         IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
         BEGIN
@@ -217,78 +250,3 @@ BEGIN
     END CATCH;
 END;
 GO
-
-
-CREATE OR ALTER PROCEDURE Administracion.InsertarOActualizarEmpleado
-    @IdEmpleado INT,
-    @Nombre VARCHAR(50),
-    @Apellido VARCHAR(50),
-    @DNI CHAR(8),
-    @Direccion VARCHAR(255),
-    @EmailPersonal VARCHAR(100) = NULL,
-    @EmailEmpresa VARCHAR(100) = NULL,
-    @CUIL CHAR(11) = NULL,
-    @Cargo VARCHAR(30),
-    @Sucursal VARCHAR(20),
-    @Turno VARCHAR(20)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Verificar si el empleado ya existe
-    IF EXISTS (SELECT 1 FROM Administracion.Empleado WHERE IdEmpleado = @IdEmpleado)
-    BEGIN
-        -- Si existe, hacer un UPDATE
-        UPDATE Administracion.Empleado
-        SET Nombre = @Nombre,
-            Apellido = @Apellido,
-            DNI = @DNI,
-            Direccion = @Direccion,
-            EmailPersonal = @EmailPersonal,
-            EmailEmpresa = @EmailEmpresa,
-            CUIL = @CUIL,
-            Cargo = @Cargo,
-            Sucursal = @Sucursal,
-            Turno = @Turno
-        WHERE IdEmpleado = @IdEmpleado;
-    END
-    ELSE
-    BEGIN
-        -- Si no existe, calcular el nuevo IdEmpleado como el m�s grande de la tabla m�s 1
-        DECLARE @NuevoIdEmpleado INT;
-        SELECT @NuevoIdEmpleado = ISNULL(MAX(IdEmpleado), 0) + 1 FROM Administracion.Empleado;
-
-        -- Insertar nuevo registro
-        INSERT INTO Administracion.Empleado (IdEmpleado, Nombre, Apellido, DNI, Direccion, EmailPersonal, EmailEmpresa, CUIL, Cargo, Sucursal, Turno)
-        VALUES (@NuevoIdEmpleado, @Nombre, @Apellido, @DNI, @Direccion, @EmailPersonal, @EmailEmpresa, @CUIL, @Cargo, @Sucursal, @Turno);
-    END
-END; 
-GO
-CREATE OR ALTER PROCEDURE Administracion.EliminarEmpleado
-    @IdEmpleado INT = NULL,        -- Par�metro opcional para buscar por IdEmpleado
-    @DNI CHAR(8) = NULL            -- Par�metro opcional para buscar por DNI
-AS
-BEGIN
-    -- Verificar si se proporcion� alg�n par�metro v�lido (IdEmpleado o DNI)
-    IF @IdEmpleado IS NULL AND @DNI IS NULL
-    BEGIN
-        RAISERROR('Debe proporcionar el IdEmpleado o el DNI para eliminar un empleado.', 16, 1);
-        RETURN;
-    END
-
-    -- Intentar encontrar al empleado
-    IF EXISTS (SELECT 1 FROM Administracion.Empleado WHERE (IdEmpleado = @IdEmpleado OR DNI = @DNI))
-    BEGIN
-        -- Eliminar el empleado si existe
-        DELETE FROM Administracion.Empleado 
-        WHERE (IdEmpleado = @IdEmpleado OR DNI = @DNI);
-        
-        PRINT 'Empleado eliminado exitosamente.';
-    END
-    ELSE
-    BEGIN
-        -- Mostrar mensaje de error si no se encuentra al empleado
-        RAISERROR('Empleado inexistente.', 16, 1);
-    END
-END;
-*/

@@ -3,7 +3,9 @@
 USE Com2900G17
 GO
 
-select * from Administracion.Empleado
+Select ISNULL('Hello', (SELECT NOMBRE FROM Administracion.Sucursal WHERE Ciudad= 'San Justo' AND Direccion = 'Rivera Indarte 1234'));
+
+select * from Administracion.Empleado where Legajo = NULL or DNI = NULL
 select * from Administracion.Sucursal
 
 select * from Productos.ClasificacionProducto
