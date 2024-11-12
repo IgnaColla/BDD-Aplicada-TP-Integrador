@@ -23,16 +23,20 @@ BEGIN
 
 	-- Verificar si esa venta ya existe
 
-	DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
+	
+	
+	IF not exists (SELECT 1 FROM Productos.Catalogo c 
 	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
 	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	where Producto = @Producto and Precio = @PrecioCompra and cat.Categoria = @Categoria);
-	
-	IF @IdCatalogo = NULL
+	where Producto = @Producto and Precio = @PrecioCompra and cat.Categoria = @Categoria)
 		BEGIN
             RAISERROR('+ El producto no existe. Terminando el procedimiento.', 16, 1);
             RETURN;
 		END
+	DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
+	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
+	where Producto = @Producto and Precio = @PrecioCompra and cat.Categoria = @Categoria);
 
 	IF NOT EXISTS (SELECT Id FROM Ventas.Factura WHERE NumeroFactura=@Factura)
 		BEGIN
@@ -41,6 +45,12 @@ BEGIN
 		END
 
 	DECLARE @IdFactura INT =  (SELECT Id FROM Ventas.Factura WHERE NumeroFactura=@Factura);
+
+	IF EXISTS (SELECT 1 FROM Ventas.DetalleFactura WHERE IdFactura = @IdFactura AND IdProducto = @IdCatalogo)
+		BEGIN
+            RAISERROR('+ El producto ya fue cargado. Terminando el procedimiento.', 16, 1);
+            RETURN;
+		END
 
 	-- Insertar nuevo registro
 	INSERT Ventas.DetalleFactura VALUES (@IdFactura,@IdCatalogo,@PrecioVenta,@Cantidad);
