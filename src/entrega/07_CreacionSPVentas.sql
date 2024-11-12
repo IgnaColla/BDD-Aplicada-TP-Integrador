@@ -251,21 +251,3 @@ BEGIN
     END CATCH;
 END;
 GO
-
-exec Ventas.InsertarVenta
-	@Sucursal = 'Yangon',
-    @TipoCliente = 'Normal',
-    @Genero = 'F',                      
-	@LegajoEmpleado = '257023',
-	@NumeroFactura = '849-09-5899',
-	@TipoFactura = 'A',
-	@Fecha = '28/02/2019',                         
-    @Hora = '13:32',                            
-	@MedioPago = 'Cash',           
-	@IdentificadorPago = NULL
-
-	select * from Ventas.Factura ft
-	where ft.NumeroFactura = '849-09-3801'
-
-	select * from Ventas.Venta vt
-	WHERE vt.IdFactura = 15003

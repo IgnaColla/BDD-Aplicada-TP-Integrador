@@ -20,6 +20,15 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION; -- Iniciar transacción
+		
+	IF EXISTS (SELECT c.ID FROM Productos.Catalogo c 
+	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
+	where Producto = @Producto and Precio = @Precio and cat.Categoria = @Categoria)
+		BEGIN
+            RAISERROR('+ El catologo existe. Terminando el procedimiento.', 16, 1);
+            RETURN;
+		END
 
 	-- Insertar nuevo registro
 	DECLARE @idCatalogo INT = (SELECT MAX(id)+1 FROM Productos.Catalogo);
