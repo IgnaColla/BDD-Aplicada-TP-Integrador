@@ -74,7 +74,6 @@ BEGIN TRY
 		REFERENCES Ventas.Factura(Id) ON DELETE CASCADE ON UPDATE CASCADE,
 	)
 
-
     PRINT('+ Esquema y tablas en [Ventas] creados correctamente.');
 END TRY
 BEGIN CATCH

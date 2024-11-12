@@ -13,7 +13,8 @@ DROP TABLE IF EXISTS Productos.Linea
 GO
 DROP TABLE IF EXISTS Productos.Catalogo
 GO
-
+DROP TABLE IF EXISTS Productos.TipoDeCambio
+GO
 
 BEGIN TRY
     IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Productos')
@@ -54,6 +55,13 @@ BEGIN TRY
 		REFERENCES Productos.Categoria(Id),
 		PRIMARY KEY (IdCatalogo, IdCategoria)
 	);
+
+	-- Creación de Tipo de Cambio
+	CREATE TABLE Productos.TipoDeCambio(
+		Id INT IDENTITY(1,1) PRIMARY KEY,
+		Peso DECIMAL(10,5) NOT NULL,
+		Moneda VARCHAR(30) NOT NULL
+	)
 
     PRINT('+ Esquema y tablas en [Productos] creados correctamente.');
 END TRY

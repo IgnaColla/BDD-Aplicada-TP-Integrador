@@ -26,13 +26,13 @@ BEGIN
 
 		COMMIT TRANSACTION;  -- Confirmar transacción
 
-        PRINT('+ Venta insertada con éxito.');
+        PRINT('+ Nota de credito insertada con éxito.');
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserción de la Venta: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la inserción de la nota de credito: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO

@@ -204,7 +204,7 @@ BEGIN
 
         CREATE TABLE #ElectronicoSinDuplicados (
         Producto VARCHAR(30),
-        PrecioUnitario VARCHAR(6)
+        PrecioUnitario DECIMAL(10, 2)
         );
 
         SET @SQL = N'BULK INSERT #Electronico
@@ -220,8 +220,13 @@ BEGIN
 
         -- Insertar productos únicos en la nueva tabla
         INSERT INTO #ElectronicoSinDuplicados (Producto, PrecioUnitario)
-        SELECT DISTINCT Producto, PrecioUnitario
+        SELECT DISTINCT Producto, CAST(REPLACE(PrecioUnitario, ',', '.') AS DECIMAL(6, 2)) AS Precio
         FROM #Electronico;
+
+		DECLARE @Peso DECIMAL(10,5) = (SELECT Peso FROM Productos.TipoDeCambio WHERE Moneda = 'USD');
+
+		UPDATE #ElectronicoSinDuplicados
+		set PrecioUnitario = PrecioUnitario * @Peso;
 
         ;WITH ProductosNoDuplicados AS (
         SELECT
@@ -237,7 +242,7 @@ BEGIN
         SELECT
             Id,
             Producto,
-            CAST(REPLACE(Precio, ',', '.') AS DECIMAL(6, 2)) AS Precio
+            Precio
         FROM ProductosNoDuplicados;
 
         DROP TABLE #Electronico
