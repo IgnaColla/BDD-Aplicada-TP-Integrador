@@ -6,7 +6,7 @@
 
 USE Com2900G17;
 GO
-
+/*
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Boquitaelmasgrande';
 GO
 
@@ -19,7 +19,7 @@ CREATE SYMMETRIC KEY SimmKeyEmpleado
     WITH ALGORITHM = AES_256
     ENCRYPTION BY CERTIFICATE CertEmpleado;
 GO
-
+*/
 
 CREATE OR ALTER PROCEDURE Administracion.AgregarColumnasEncriptadasEmpleado
     @Columnas NVARCHAR(MAX)
@@ -54,7 +54,7 @@ BEGIN
         )
         BEGIN
             -- Se agrega la columna que va a contener los datos encriptados
-            SET @sql = 'ALTER TABLE Administracion.Empleado ADD ' + @Columna + ' VARBINARY(MAX)';
+            SET @sql = 'ALTER TABLE Administracion.Empleado ADD ' + @Columna + ' VARBINARY(MAX);';
 
             EXEC sp_executesql @sql;
         END
@@ -63,7 +63,7 @@ END
 GO
 
 
-CREATE OR ALTER PROCEDURE EncriptarDatosEmpleado
+CREATE OR ALTER PROCEDURE Administracion.EncriptarDatosEmpleado
     @Columnas NVARCHAR(MAX)  -- Lista de columnas separadas por comas
 AS
 BEGIN
@@ -109,11 +109,11 @@ END
 GO
 
 
-CREATE OR ALTER PROCEDURE VerEmpleadoDesencriptado
+CREATE OR ALTER PROCEDURE Administracion.VerEmpleadoDesencriptado
     @Columnas NVARCHAR(MAX)  -- Lista de columnas separadas por comas
 AS
 BEGIN
-    DECLARE @sql NVARCHAR(MAX) = N'SELECT id, ';
+    DECLARE @sql NVARCHAR(MAX) = N'SELECT ';
     DECLARE @Columna NVARCHAR(128);
     DECLARE @EncriptarColumna NVARCHAR(128);
     DECLARE @Posicion INT;
@@ -144,7 +144,7 @@ BEGIN
     END
 
     -- Eliminar la última coma y espacio
-    SET @sql = LEFT(@sql, LEN(@sql) - 2);
+    SET @sql = LEFT(@sql, LEN(@sql) - 1);
     SET @sql += ' FROM Administracion.Empleado;';
 
     EXEC sp_executesql @sql;
