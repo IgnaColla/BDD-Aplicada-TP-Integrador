@@ -9,7 +9,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.InsertarDetalleFactura
 	@Factura VARCHAR(15),
-	@Producto VARCHAR(100),
+	@IdProducto INT,
 	@Categoria VARCHAR(40),
 	@PrecioCompra DECIMAL(10,2),
 	@PrecioVenta DECIMAL(10,5),
@@ -25,18 +25,11 @@ BEGIN
 
 	
 	
-	IF not exists (SELECT 1 FROM Productos.Catalogo c 
-	INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-	INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	WHERE Producto = @Producto AND Precio = @PrecioCompra AND cat.Categoria = @Categoria)
+	IF not exists (SELECT 1 FROM Productos.Catalogo WHERE id=@IdProducto)
 		BEGIN
             RAISERROR('+ El producto no existe. Terminando el procedimiento.', 16, 1);
             RETURN;
 		END
-	DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
-	INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-	INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	WHERE Producto = @Producto AND Precio = @PrecioCompra AND cat.Categoria = @Categoria);
 
 	IF NOT EXISTS (SELECT Id FROM Ventas.Factura WHERE NumeroFactura=@Factura)
 		BEGIN
@@ -46,14 +39,14 @@ BEGIN
 
 	DECLARE @IdFactura INT =  (SELECT Id FROM Ventas.Factura WHERE NumeroFactura=@Factura);
 
-	IF EXISTS (SELECT 1 FROM Ventas.DetalleFactura WHERE IdFactura = @IdFactura AND IdProducto = @IdCatalogo)
+	IF EXISTS (SELECT 1 FROM Ventas.DetalleFactura WHERE IdFactura = @IdFactura AND IdProducto = @IdProducto)
 		BEGIN
             RAISERROR('+ El producto ya fue cargado. Terminando el procedimiento.', 16, 1);
             RETURN;
 		END
 
 	-- Insertar nuevo registro
-	INSERT Ventas.DetalleFactura VALUES (@IdFactura,@IdCatalogo,@PrecioVenta,@Cantidad);
+	INSERT Ventas.DetalleFactura VALUES (@IdFactura,@IdProducto,@PrecioVenta,@Cantidad);
 
 	UPDATE ft
 		SET 
