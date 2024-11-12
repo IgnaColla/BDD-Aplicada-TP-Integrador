@@ -6,7 +6,7 @@
 
 USE Com2900G17;
 GO
-/*
+
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Boquitaelmasgrande';
 GO
 
@@ -19,7 +19,7 @@ CREATE SYMMETRIC KEY SimmKeyEmpleado
     WITH ALGORITHM = AES_256
     ENCRYPTION BY CERTIFICATE CertEmpleado;
 GO
-*/
+
 
 CREATE OR ALTER PROCEDURE Administracion.AgregarColumnasEncriptadasEmpleado
     @Columnas NVARCHAR(MAX)
