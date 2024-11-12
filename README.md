@@ -11,6 +11,7 @@
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | **Sistema Operativo**        | - Windows Server 2019 o superior                                                                                                          |
 | **Versión**                  | - SQL Server 2022                                                                                                                         |
+| **Nombre de la Base de Datos** | - `Com2900G17`                                                                                                                          |
 | **Ruta de Instalación**      | - `C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER`                                                                             |
 | **Ruta de Datos**            | - `C:\Program Files\Microsoft SQL Server\MSSQL16.SQLPC\MSSQL\DATA`                                                                        |
 | **Ruta de Log**              | - `C:\Program Files\Microsoft SQL Server\MSSQL16.SQLPC\MSSQL\Logs`                                                                        |
