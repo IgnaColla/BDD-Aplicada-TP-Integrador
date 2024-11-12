@@ -16,7 +16,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
 
 	-- Verificar si esa categoria ya existe
 	IF EXISTS (SELECT 1 FROM Productos.Categoria WHERE Categoria = @Categoria)	
@@ -28,15 +28,15 @@ BEGIN
 	-- Insertar nuevo registro
 	INSERT INTO Productos.Categoria(Categoria,IdLinea) VALUES (@Categoria,@Linea);
 
-	COMMIT TRANSACTION;  -- Confirmar transacción
+	COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
 
-        PRINT('+ Categoria insertada con éxito.');
+        PRINT('+ Categoria insertada con ï¿½xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserción de la Categoria: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la inserciÃ³n de la Categoria: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
@@ -49,7 +49,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
 
 	-- Verificar si esa categoria ya existe
 	IF NOT EXISTS (SELECT 1 FROM Productos.Categoria WHERE Categoria = @Categoria)	
@@ -64,15 +64,15 @@ BEGIN
 	SET IdLinea = @idLinea
 	WHERE Categoria = @Categoria;
 
-	COMMIT TRANSACTION;  -- Confirmar transacción
+	COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
 
-        PRINT('+ Categoria actualizada con éxito.');
+        PRINT('+ Categoria actualizada con Ã©xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la actualización de la Categoria: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la actualizaciÃ³n de la Categoria: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
@@ -84,27 +84,27 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
 
         -- Buscar categoria y eliminar
         DELETE FROM Productos.Categoria 
         WHERE Categoria = @Categoria;
 
-        IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
+        IF @@ROWCOUNT = 0  -- Verificar si se eliminÃ³ algÃºn registro
         BEGIN
             RAISERROR('+ Categoria inexistente.', 16, 1);
             RETURN;
         END
 
-        COMMIT TRANSACTION;  -- Confirmar transacción
+        COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
 
-        PRINT('+ Categoria eliminada con éxito.');
+        PRINT('+ Categoria eliminada con Ã©xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la eliminación de la Categoria: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la eliminaciÃ³n de la Categoria: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO

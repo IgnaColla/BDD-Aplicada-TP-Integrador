@@ -15,9 +15,9 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacci髇
+        BEGIN TRANSACTION;  -- Iniciar transacci贸n
 
-	-- Verificar si esa venta ya existe
+	-- Verificar si esa moneda ya existe
 		IF EXISTS ( SELECT 1 FROM Productos.TipoDeCambio WHERE Moneda = @Moneda)
 			BEGIN
 				RAISERROR('+ La moneda ya existe. Terminando el procedimiento.', 16, 1);
@@ -26,15 +26,15 @@ BEGIN
 
 		INSERT Productos.TipoDeCambio VALUES (@Peso,@Moneda);
 
-			COMMIT TRANSACTION;  -- Confirmar transacci髇
+			COMMIT TRANSACTION;  -- Confirmar transacci贸n
 
-			PRINT('+ Tipo de moneda insertada con 閤ito.');
+			PRINT('+ Tipo de moneda insertada con 茅xito.');
 		END TRY
 	BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacci髇 en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacci贸n en caso de error
 
         DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserci髇 del tipo de moneda: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la inserci贸n del tipo de moneda: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
@@ -47,9 +47,9 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacci髇
+        BEGIN TRANSACTION;  -- Iniciar transacci贸n
 
-		-- Verificar si esa venta ya existe
+		-- Verificar si esa moneda ya existe
 		IF NOT EXISTS ( SELECT 1 FROM Productos.TipoDeCambio WHERE Moneda = @Moneda)
 			BEGIN
 				RAISERROR('+ La moneda no existe. Terminando el procedimiento.', 16, 1);
@@ -60,15 +60,15 @@ BEGIN
 		SET Peso = @Peso
 		WHERE Moneda = @Moneda;
 
-		COMMIT TRANSACTION;  -- Confirmar transacci髇
+		COMMIT TRANSACTION;  -- Confirmar transacci贸n
 
-        PRINT('+ Tipo de moneda actulizada con 閤ito.');
+        PRINT('+ Tipo de moneda actulizada con 茅xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacci髇 en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacci贸n en caso de error
 
         DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la actualizaci髇 del tipo de moneda: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la actualizaci贸n del tipo de moneda: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
@@ -81,9 +81,9 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacci髇
+        BEGIN TRANSACTION;  -- Iniciar transacci贸n
 
-	-- Verificar si esa venta ya existe
+	-- Verificar si esa moneda ya existe
 		IF NOT EXISTS ( SELECT 1 FROM Productos.TipoDeCambio WHERE Moneda = @Moneda)
 			BEGIN
 				RAISERROR('+ La moneda no existe. Terminando el procedimiento.', 16, 1);
@@ -92,15 +92,15 @@ BEGIN
 
 		DELETE FROM Productos.TipoDeCambio WHERE Moneda=@Moneda;
 
-		COMMIT TRANSACTION;  -- Confirmar transacci髇
+		COMMIT TRANSACTION;  -- Confirmar transacci贸n
 
-		PRINT('+ Tipo de moneda eliminada con 閤ito.');
+		PRINT('+ Tipo de moneda eliminada con 茅xito.');
 		END TRY
 	BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacci髇 en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacci贸n en caso de error
 
         DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la eliminaci髇 del tipo de moneda: %s', 16, 1, @ErrorMessage);
+        RAISERROR('+ Error durante la eliminaci贸n del tipo de moneda: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO

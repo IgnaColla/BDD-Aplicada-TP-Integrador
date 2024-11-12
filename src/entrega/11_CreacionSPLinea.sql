@@ -14,7 +14,7 @@ BEGIN
 	SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
 
         -- Verificar si la linea de producto ya existe
         IF EXISTS (SELECT 1 FROM Productos.Linea WHERE LineaProducto = @Linea)	
@@ -23,15 +23,15 @@ BEGIN
             RETURN;
         END
 		INSERT Productos.Linea VALUES(@Linea)
-		COMMIT TRANSACTION;  -- Confirmar transacción
+		COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
 
-        PRINT('+ Linea de producto insertado con éxito.');
+        PRINT('+ Linea de producto insertado con Ã©xito.');
 	END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserción de la linea de producto: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la inserciÃ³n de la linea de producto: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
@@ -42,26 +42,26 @@ AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciÃ³n
 
-        -- Buscar linea de prodcuto y eliminar
+        -- Buscar linea de producto y eliminar
         DELETE FROM Productos.Linea 
         WHERE LineaProducto = @Linea;
 
-        IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
+        IF @@ROWCOUNT = 0  -- Verificar si se eliminÃ³ algÃºn registro
         BEGIN
             RAISERROR('+ Linea de producto inexistente.', 16, 1);
             RETURN;
         END
 
-        COMMIT TRANSACTION;  -- Confirmar transacción
+        COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
 
-        PRINT('+ Linea de producto eliminada con éxito.');
+        PRINT('+ Linea de producto eliminada con Ã©xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciÃ³n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la eliminación de la Linea de producto: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la eliminaciÃ³n de la Linea de producto: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;

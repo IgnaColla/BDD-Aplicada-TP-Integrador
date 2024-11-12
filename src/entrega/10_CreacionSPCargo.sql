@@ -14,7 +14,7 @@ BEGIN
 	SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciï¿½n
 
         -- Verificar si el cargo ya existe
         IF EXISTS (SELECT 1 FROM Administracion.Cargo WHERE Cargo = @Cargo)	
@@ -23,15 +23,15 @@ BEGIN
             RETURN;
         END
 		INSERT Administracion.Cargo VALUES(@Cargo)
-		COMMIT TRANSACTION;  -- Confirmar transacción
+		COMMIT TRANSACTION;  -- Confirmar transacciï¿½n
 
-        PRINT('+ Cargo insertado con éxito.');
+        PRINT('+ Cargo insertado con Ã©xito.');
 	END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciï¿½n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserción del Cargo: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la inserciÃ³n del Cargo: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
@@ -42,26 +42,26 @@ AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacción
+        BEGIN TRANSACTION;  -- Iniciar transacciï¿½n
 
         -- Buscar cargo y eliminar
         DELETE FROM Administracion.Cargo 
         WHERE Cargo = @Cargo;
 
-        IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
+        IF @@ROWCOUNT = 0  -- Verificar si se eliminÃ³ algÃºn registro
         BEGIN
             RAISERROR('+ Cargo inexistente.', 16, 1);
             RETURN;
         END
 
-        COMMIT TRANSACTION;  -- Confirmar transacción
+        COMMIT TRANSACTION;  -- Confirmar transacciÃ³n
 
-        PRINT('+ Cargo eliminado con éxito.');
+        PRINT('+ Cargo eliminado con Ã©xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacciï¿½n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la eliminación del Cargo: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la eliminaciÃ³n del Cargo: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;

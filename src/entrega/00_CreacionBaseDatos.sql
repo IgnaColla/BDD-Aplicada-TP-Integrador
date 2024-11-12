@@ -30,7 +30,7 @@ BEGIN TRY
 END TRY
 BEGIN CATCH
     -- Captura y muestra el error si ocurre uno
-    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
     RAISERROR('+ Error al crear la base de datos [Com2900G17]: %s', 16, 1, @ErrorMessage);
 END CATCH;
 GO

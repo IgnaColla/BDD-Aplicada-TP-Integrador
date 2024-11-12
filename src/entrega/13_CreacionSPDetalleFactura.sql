@@ -19,24 +19,24 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacci髇
+        BEGIN TRANSACTION;  -- Iniciar transacci贸n
 
 	-- Verificar si esa venta ya existe
 
 	
 	
 	IF not exists (SELECT 1 FROM Productos.Catalogo c 
-	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	where Producto = @Producto and Precio = @PrecioCompra and cat.Categoria = @Categoria)
+	INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+	INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
+	WHERE Producto = @Producto AND Precio = @PrecioCompra AND cat.Categoria = @Categoria)
 		BEGIN
             RAISERROR('+ El producto no existe. Terminando el procedimiento.', 16, 1);
             RETURN;
 		END
 	DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
-	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	where Producto = @Producto and Precio = @PrecioCompra and cat.Categoria = @Categoria);
+	INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+	INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
+	WHERE Producto = @Producto AND Precio = @PrecioCompra AND cat.Categoria = @Categoria);
 
 	IF NOT EXISTS (SELECT Id FROM Ventas.Factura WHERE NumeroFactura=@Factura)
 		BEGIN
@@ -73,15 +73,15 @@ BEGIN
 			Ventas.DetalleFactura df ON ft.Id = df.IdFactura
 		WHERE ft.id = @IdFactura;
 
-	COMMIT TRANSACTION;  -- Confirmar transacci髇
+	COMMIT TRANSACTION;  -- Confirmar transacci贸n
 
-        PRINT('+ Detalle de factura insertada con 閤ito.');
+        PRINT('+ Detalle de factura insertada con 茅xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacci髇 en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacci贸n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserci髇 de la detalle de factura: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la inserci贸n de la detalle de factura: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO

@@ -14,7 +14,7 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;  -- Iniciar transacci髇
+        BEGIN TRANSACTION;  -- Iniciar transacci贸n
 		IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE NumeroFactura=@Factura OR (SELECT IdentificadorPago FROM Ventas.Factura WHERE NumeroFactura=@Factura) = NULL)
         BEGIN
             RAISERROR('+ La factura no existe o no esta paga. Terminando el procedimiento.', 16, 1);
@@ -24,15 +24,15 @@ BEGIN
 		DECLARE @IdFactura INT = (SELECT id FROM Ventas.Factura WHERE NumeroFactura=@Factura);
 		INSERT Ventas.NotaCredito VALUES (@IdFactura);
 
-		COMMIT TRANSACTION;  -- Confirmar transacci髇
+		COMMIT TRANSACTION;  -- Confirmar transacci贸n
 
-        PRINT('+ Nota de credito insertada con 閤ito.');
+        PRINT('+ Nota de credito insertada con 茅xito.');
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;  -- Revertir transacci髇 en caso de error
+        ROLLBACK TRANSACTION;  -- Revertir transacci贸n en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR('+ Error durante la inserci髇 de la nota de credito: %s', 16, 1, @ErrorMessage);
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
+        RAISERROR('+ Error durante la inserci贸n de la nota de credito: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO

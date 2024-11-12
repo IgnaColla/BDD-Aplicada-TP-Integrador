@@ -51,7 +51,7 @@ BEGIN
             WHERE cl.Categoria = ca.Categoria
         );
 
-        PRINT '+ Importación de categorias completada exitosamente.';
+        PRINT('+ Importación de categorias completada exitosamente.');
     END TRY
     BEGIN CATCH
         DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
@@ -272,9 +272,9 @@ BEGIN
         BEGIN TRANSACTION; -- Iniciar transacción
 		
 	IF EXISTS (SELECT c.ID FROM Productos.Catalogo c 
-	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	where Producto = @Producto and Precio = @Precio and cat.Categoria = @Categoria)
+	INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+	INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
+	WHERE Producto = @Producto AND Precio = @Precio AND cat.Categoria = @Categoria)
 		BEGIN
             RAISERROR('+ El catalogo existe. Terminando el procedimiento.', 16, 1);
             RETURN;
@@ -294,7 +294,7 @@ BEGIN
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la inserción del catalogo: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -314,35 +314,34 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;  -- Iniciar transacción
 
-	DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
-	inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
-	where Producto = @Producto and Precio = @Precio and cat.Categoria = @Categoria)
+        DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
+        INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+        INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
+        WHERE Producto = @Producto AND Precio = @Precio AND cat.Categoria = @Categoria)
 
-	-- Verificar si ese catalogo ya existe
-	IF NOT EXISTS (SELECT 1 FROM Productos.Catalogo WHERE id = @IdCatalogo)	
-        BEGIN
-            RAISERROR('+ El catalogo no existe. Terminando el procedimiento.', 16, 1);
-            RETURN;
-    END
+        -- Verificar si ese catalogo ya existe
+        IF NOT EXISTS (SELECT 1 FROM Productos.Catalogo WHERE id = @IdCatalogo)	
+            BEGIN
+                RAISERROR('+ El catalogo no existe. Terminando el procedimiento.', 16, 1);
+                RETURN;
+        END
 
-	-- Insertar nuevo registro
-	UPDATE Productos.Catalogo
-	SET	Precio =  @Precio,
-	PrecioRef = CASE WHEN @PrecioRef IS NOT NULL THEN @PrecioRef ELSE (SELECT PrecioRef FROM Productos.Catalogo WHERE id = @IdCatalogo) END,
-	UnidadRef = CASE WHEN @UnidadRef IS NOT NULL THEN @UnidadRef ELSE (SELECT UnidadRef FROM Productos.Catalogo WHERE id = @IdCatalogo) END,
-	Fecha = CASE WHEN @Fecha IS NOT NULL THEN @Fecha ELSE (SELECT Fecha FROM Productos.Catalogo WHERE id = @IdCatalogo) END
-	WHERE id = @IdCatalogo
-	COMMIT TRANSACTION;
-	
-	-- Confirmar transacción
+        -- Insertar nuevo registro
+        UPDATE Productos.Catalogo
+        SET	Precio =  @Precio,
+        PrecioRef = CASE WHEN @PrecioRef IS NOT NULL THEN @PrecioRef ELSE (SELECT PrecioRef FROM Productos.Catalogo WHERE id = @IdCatalogo) END,
+        UnidadRef = CASE WHEN @UnidadRef IS NOT NULL THEN @UnidadRef ELSE (SELECT UnidadRef FROM Productos.Catalogo WHERE id = @IdCatalogo) END,
+        Fecha = CASE WHEN @Fecha IS NOT NULL THEN @Fecha ELSE (SELECT Fecha FROM Productos.Catalogo WHERE id = @IdCatalogo) END
+        WHERE id = @IdCatalogo
+
+        COMMIT TRANSACTION; -- Confirmar transacción
 
         PRINT('+ Catalogo actualizado con éxito.');
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la actualización del catalogo: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -361,16 +360,15 @@ BEGIN
 
         -- Buscar catalogo y eliminar
 		DECLARE @IdCatalogo INT = (SELECT c.ID FROM Productos.Catalogo c 
-		inner join Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
-		inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
-		where Producto = @Producto and Precio = @Precio and cat.Categoria = @Categoria)
-
+		INNER JOIN Productos.CatalogoCategoria cc ON cc.IdCatalogo = c.Id
+		INNER JOIN Productos.Categoria cat ON cat.Id = cc.IdCategoria
+		WHERE Producto = @Producto AND Precio = @Precio AND cat.Categoria = @Categoria)
 
         DELETE FROM Productos.Catalogo 
         WHERE Id = @IdCatalogo;
 
 		DELETE FROM Productos.CatalogoCategoria
-		where IdCatalogo = @IdCatalogo and IdCategoria = (SELECT id FROM Productos.Categoria WHERE Categoria = @Categoria)
+		WHERE IdCatalogo = @IdCatalogo AND IdCategoria = (SELECT id FROM Productos.Categoria WHERE Categoria = @Categoria)
 
         IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
         BEGIN
@@ -380,12 +378,12 @@ BEGIN
 
         COMMIT TRANSACTION;  -- Confirmar transacción
 
-        PRINT('+ Catalogo eliminado con éxito.');
+        PRINT('+ Catálogo eliminado con éxito.');
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la eliminación de lo Catalogo: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;

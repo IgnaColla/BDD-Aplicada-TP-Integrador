@@ -69,4 +69,3 @@ BEGIN CATCH
     DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
     RAISERROR('+ Error durante la creación del esquema o las tablas en [Productos]: %s', 16, 1, @ErrorMessage);
 END CATCH;
-

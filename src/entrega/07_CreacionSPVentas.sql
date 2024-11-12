@@ -208,38 +208,38 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;  -- Iniciar transacción
 
-	-- Verificar si esa venta ya existe
-	IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE NumeroFactura=@NumeroFactura)
-        BEGIN
-            RAISERROR('+ La venta ya existe. Terminando el procedimiento.', 16, 1);
-            RETURN;
-		END
-	IF NOT EXISTS (SELECT Id FROM Ventas.MedioDePago WHERE Codigo=@MedioPago)
-		BEGIN
-            RAISERROR('+ El medio de pago no existe. Terminando el procedimiento.', 16, 1);
-            RETURN;
-		END
-	DECLARE @IdMedioPago INT =  (SELECT Id FROM Ventas.MedioDePago WHERE Codigo=@MedioPago);
-	-- Insertar nuevo registro
-	INSERT Ventas.Factura VALUES (@NumeroFactura,@TipoFactura,@Fecha,@Hora,@IdMedioPago,0,0,@IdentificadorPago);
+		-- Verificar si esa venta ya existe
+		IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE NumeroFactura=@NumeroFactura)
+			BEGIN
+				RAISERROR('+ La venta ya existe. Terminando el procedimiento.', 16, 1);
+				RETURN;
+			END
+		IF NOT EXISTS (SELECT Id FROM Ventas.MedioDePago WHERE Codigo=@MedioPago)
+			BEGIN
+				RAISERROR('+ El medio de pago no existe. Terminando el procedimiento.', 16, 1);
+				RETURN;
+			END
+		DECLARE @IdMedioPago INT =  (SELECT Id FROM Ventas.MedioDePago WHERE Codigo=@MedioPago);
+		-- Insertar nuevo registro
+		INSERT Ventas.Factura VALUES (@NumeroFactura,@TipoFactura,@Fecha,@Hora,@IdMedioPago,0,0,@IdentificadorPago);
 
-	IF NOT EXISTS (SELECT Id FROM Administracion.Sucursal WHERE Nombre=@Sucursal)
-		BEGIN
-            RAISERROR('+ La sucursal no existe. Terminando el procedimiento.', 16, 1);
-            RETURN;
-		END
-	DECLARE @IdSucursal INT =  (SELECT Id FROM Administracion.Sucursal WHERE Nombre=@Sucursal);
+		IF NOT EXISTS (SELECT Id FROM Administracion.Sucursal WHERE Nombre=@Sucursal)
+			BEGIN
+				RAISERROR('+ La sucursal no existe. Terminando el procedimiento.', 16, 1);
+				RETURN;
+			END
+		DECLARE @IdSucursal INT =  (SELECT Id FROM Administracion.Sucursal WHERE Nombre=@Sucursal);
 
-	IF NOT EXISTS (SELECT Legajo FROM Administracion.Empleado WHERE Legajo=@LegajoEmpleado)
-		BEGIN
-            RAISERROR('+ El empleado no existe. Terminando el procedimiento.', 16, 1);
-            RETURN;
-		END
-	DECLARE @IdFactura INT = (SELECT MAX(ID) FROM Ventas.Factura);
+		IF NOT EXISTS (SELECT Legajo FROM Administracion.Empleado WHERE Legajo=@LegajoEmpleado)
+			BEGIN
+				RAISERROR('+ El empleado no existe. Terminando el procedimiento.', 16, 1);
+				RETURN;
+			END
+		DECLARE @IdFactura INT = (SELECT MAX(ID) FROM Ventas.Factura);
 
-	INSERT Ventas.Venta VALUES(@IdFactura,@IdSucursal,@TipoCliente,@Genero,@LegajoEmpleado);
+		INSERT Ventas.Venta VALUES(@IdFactura,@IdSucursal,@TipoCliente,@Genero,@LegajoEmpleado);
 
-	COMMIT TRANSACTION;  -- Confirmar transacción
+		COMMIT TRANSACTION;  -- Confirmar transacción
 
         PRINT('+ Venta insertada con éxito.');
     END TRY

@@ -92,7 +92,7 @@ BEGIN
 		FROM EmpleadoUnico
 		WHERE RowNum = 1;
 
-        PRINT '+ Importación de empleados completada exitosamente.';
+        PRINT('+ Importación de empleados completada exitosamente.');
     END TRY
     BEGIN CATCH
         DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();

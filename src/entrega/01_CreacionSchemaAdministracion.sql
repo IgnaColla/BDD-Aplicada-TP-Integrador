@@ -54,7 +54,8 @@ BEGIN TRY
 		CONSTRAINT FK_Cargo FOREIGN KEY (IdCargo) 
         REFERENCES Administracion.Cargo(Id) ON UPDATE CASCADE
     );
-    PRINT '+ Esquema y tablas en [Administracion] creados correctamente.';
+    
+    PRINT('+ Esquema y tablas en [Administracion] creados correctamente.');
 END TRY
 BEGIN CATCH
     -- Captura y muestra el error si ocurre uno
