@@ -2,19 +2,7 @@
 USE Com2900G17
 GO
 
--- Prueba SP Sucursal--
-
-EXEC Administracion.InsertarSucursal 'San Justo','Compra Gamer', 'Rivera Indarte 123', 'L a V 8 a. m.–9 p. m.S y D 9 a. m.-8 p. m.', '4441-5432'
-GO
-
-EXEC Administracion.ActualizarSucursal @Ciudad='San Justo',@Nombre='Pegu', @Direccion='Rivera Indarte 123'
-GO
-
-EXEC Administracion.EliminarSucursal 'San Justo','Rivera Indarte 1237'
-GO
-
-
--- Prueba SP Importar CSVs
+-- Prueba SP Importar CSVs (Ejecutar en orden)
 
 EXEC Administracion.ImportarSucursalesDesdeCSV
 @RutaArchivo = 'D:\Universidad\BDD-Aplicada-TP-Integrador\dataset\Sucursal.csv'
@@ -36,7 +24,7 @@ EXEC Productos.AgregarCatalogoProductosImportadosDesdeCSV
 @RutaArchivo = 'D:\Universidad\BDD-Aplicada-TP-Integrador\dataset\ProductosImportados.csv'
 GO
 
-EXEC productos.InsertarTipoCambio '978','USD'
+EXEC Productos.InsertarTipoCambio '978','USD'
 GO
 
 EXEC Productos.AgregarCatalogoProductosElectronicosDesdeCSV
@@ -50,6 +38,18 @@ GO
 EXEC Ventas.ImportarVentasDesdeCSV
 @RutaArchivo = 'D:\Universidad\BDD-Aplicada-TP-Integrador\dataset\ventas_registradas.csv'
 GO
+
+-- Prueba SP Sucursal--
+
+EXEC Administracion.InsertarSucursal 'San Justo','Compra Gamer', 'Rivera Indarte 123', 'L a V 8 a. m.–9 p. m.S y D 9 a. m.-8 p. m.', '4441-5432'
+GO
+
+EXEC Administracion.ActualizarSucursal @Ciudad='San Justo',@Nombre='Pegu', @Direccion='Rivera Indarte 123'
+GO
+
+EXEC Administracion.EliminarSucursal 'San Justo','Rivera Indarte 1237'
+GO
+
 
 -- Prueba SP Empleados --
 
@@ -109,7 +109,7 @@ GO
 EXEC Ventas.InsertarMedioDePago 'Credit card',	'Tarjeta de credito' --No inserta porque el medio de pago ya existe
 GO
 
-EXEC Ventas.InsertarMedioDePago 'Otherrr',	'Otro medio'
+EXEC Ventas.InsertarMedioDePago 'Other',	'Otro medio'
 GO
 
 EXEC Ventas.ActualizarMedioDePago 'Other',	'Otro medio'
