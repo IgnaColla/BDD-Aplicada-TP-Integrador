@@ -1,6 +1,6 @@
--------------------------------------------------------------------
--------------------  Stored Procedures EMPLEADO -------------------
--------------------------------------------------------------------
+--------------------------------------------------------------------
+-------------------  Stored Procedures EMPLEADO  -------------------
+--------------------------------------------------------------------
 
 -- #################### Creacion ####################
 
@@ -55,7 +55,7 @@ BEGIN
 			SELECT 
 				em.Legajo,
 				REPLACE(em.Nombre, '"', '') AS Nombre,
-				em.Apellido,
+				REPLACE(em.Apellido, '"', '') AS Apellido,
 				em.DNI,
 				em.Direccion,
 				REPLACE(REPLACE(REPLACE(REPLACE(em.EmailPersonal, '"', ''), ' ', ''), CHAR(9), ''), CHAR(160), '') AS EmailPersonal,
@@ -95,13 +95,11 @@ BEGIN
         PRINT '+ Importación de empleados completada exitosamente.';
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(500) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación de empleados: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
-
-
 
 CREATE OR ALTER PROCEDURE Administracion.InsertarEmpleado
     @Legajo INT,
@@ -114,8 +112,7 @@ CREATE OR ALTER PROCEDURE Administracion.InsertarEmpleado
     @CUIL CHAR(11) = NULL,
     @Cargo VARCHAR(30),
     @Sucursal VARCHAR(20) = NULL,
-    @Turno VARCHAR(20) = NULL,
-	@Estado CHAR(1) = NULL
+    @Turno VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -137,7 +134,7 @@ BEGIN
 
         -- Insertar nuevo registro
         INSERT INTO Administracion.Empleado (Legajo, Nombre, Apellido, DNI, Direccion, EmailPersonal, EmailEmpresa, CUIL, IdCargo, IdSucursal, Turno, Estado)
-        VALUES (@Legajo, @Nombre, @Apellido, @DNI, @Direccion, @EmailPersonal, @EmailEmpresa, @CUIL, @IdCargo, @IdSucursal, @Turno, @Estado);
+        VALUES (@Legajo, @Nombre, @Apellido, @DNI, @Direccion, @EmailPersonal, @EmailEmpresa, @CUIL, @IdCargo, @IdSucursal, @Turno, 'A');
 
         COMMIT TRANSACTION;  -- Confirmar transacción
 
@@ -146,7 +143,7 @@ BEGIN
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la inserción del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -199,17 +196,16 @@ BEGIN
 
         COMMIT TRANSACTION;  -- Confirmar transacción
 
-        PRINT('+ Empleado actualizado con �xito.');
+        PRINT('+ Empleado actualizado con exito.');
     END TRY
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la actualización del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
 GO
-
 
 CREATE OR ALTER PROCEDURE Administracion.EliminarEmpleado
     @Legajo INT = NULL, -- Parámetro opcional para buscar por IdEmpleado
@@ -229,7 +225,8 @@ BEGIN
         BEGIN TRANSACTION;  -- Iniciar transacción
 
         -- Buscar empleado y eliminar
-        DELETE FROM Administracion.Empleado 
+        UPDATE Administracion.Empleado 
+		SET Estado = 'I'
         WHERE (Legajo = @Legajo OR DNI = @DNI);
 
         IF @@ROWCOUNT = 0  -- Verificar si se eliminó algún registro
@@ -245,7 +242,7 @@ BEGIN
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la eliminación del empleado: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;

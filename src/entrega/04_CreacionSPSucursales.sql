@@ -54,7 +54,7 @@ BEGIN
 		PRINT('+ Importación de sucursales completada exitosamente.');
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la importación de sucursales: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -90,7 +90,7 @@ BEGIN
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la inserción de la sucursal: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -129,7 +129,7 @@ BEGIN
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la actualización de la sucursal: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;
@@ -169,7 +169,7 @@ BEGIN
     BEGIN CATCH
         ROLLBACK TRANSACTION;  -- Revertir transacción en caso de error
 
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorMessage VARCHAR(500) = ERROR_MESSAGE();
         RAISERROR('+ Error durante la eliminación de la sucursal: %s', 16, 1, @ErrorMessage);
     END CATCH;
 END;

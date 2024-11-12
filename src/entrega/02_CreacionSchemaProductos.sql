@@ -39,9 +39,9 @@ BEGIN TRY
         Id INT PRIMARY KEY,
 		Producto VARCHAR(100) NOT NULL, 
         Precio DECIMAL(10, 2) NOT NULL,    
-		PrecioRef DECIMAL(10, 2),
+		PrecioRef DECIMAL(10, 2),    
         UnidadRef VARCHAR(10),       
-        Fecha CHAR(20)                    
+        Fecha CHAR(20)                     
     )
 
 	-- Creación de una tabla intermedia 
@@ -49,9 +49,9 @@ BEGIN TRY
 		IdCatalogo INT NOT NULL,
 		IdCategoria INT NOT NULL,
 		CONSTRAINT FK_CatalogoCategoria_Catalogo FOREIGN KEY (IdCatalogo)
-		REFERENCES Productos.Catalogo(Id) ON DELETE CASCADE ON UPDATE CASCADE,
+		REFERENCES Productos.Catalogo(Id),
 		CONSTRAINT FK_CatalogoCategoria_Categoria FOREIGN KEY (IdCategoria)
-		REFERENCES Productos.Categoria(Id) ON DELETE CASCADE ON UPDATE CASCADE,
+		REFERENCES Productos.Categoria(Id),
 		PRIMARY KEY (IdCatalogo, IdCategoria)
 	);
 
