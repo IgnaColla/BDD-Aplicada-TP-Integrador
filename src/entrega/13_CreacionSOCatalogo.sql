@@ -1,5 +1,5 @@
 --------------------------------------------------------------------
--------------------  Stored Procedures CATALOGOS  -------------------
+-------------------  Stored Procedures CATALOGOS  ------------------
 --------------------------------------------------------------------
 
 -- #################### Creacion ####################
@@ -26,7 +26,7 @@ BEGIN
 	inner join Productos.Categoria cat ON cat.Id = cc.IdCategoria
 	where Producto = @Producto and Precio = @Precio and cat.Categoria = @Categoria)
 		BEGIN
-            RAISERROR('+ El catologo existe. Terminando el procedimiento.', 16, 1);
+            RAISERROR('+ El catalogo existe. Terminando el procedimiento.', 16, 1);
             RETURN;
 		END
 
@@ -72,7 +72,7 @@ BEGIN
 	-- Verificar si ese catalogo ya existe
 	IF NOT EXISTS (SELECT 1 FROM Productos.Catalogo WHERE id = @IdCatalogo)	
         BEGIN
-            RAISERROR('+ El catologo no existe. Terminando el procedimiento.', 16, 1);
+            RAISERROR('+ El catalogo no existe. Terminando el procedimiento.', 16, 1);
             RETURN;
     END
 

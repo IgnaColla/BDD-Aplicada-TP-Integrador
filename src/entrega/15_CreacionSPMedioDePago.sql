@@ -71,7 +71,7 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Productos.EliminarLinea
+CREATE OR ALTER PROCEDURE Ventas.EliminarMedioDePago
 	@Codigo VARCHAR(15)
 AS
 BEGIN

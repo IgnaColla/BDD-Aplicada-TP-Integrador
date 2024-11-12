@@ -22,7 +22,7 @@ BEGIN
             RAISERROR('+ La linea de producto ya existe. Terminando el procedimiento.', 16, 1);
             RETURN;
         END
-		INSERT Administracion.Cargo VALUES(@Linea)
+		INSERT Productos.Linea VALUES(@Linea)
 		COMMIT TRANSACTION;  -- Confirmar transacción
 
         PRINT('+ Linea de producto insertado con éxito.');
