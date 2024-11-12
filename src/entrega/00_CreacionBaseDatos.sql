@@ -1,10 +1,15 @@
-
+--------------- Base de datos Aplicada--------------
 ---------------- Grupo 17 Integrantes---------------
 -- Collazo Ignacio Lahuel,  41537099
 -- Cartasegna Nahuel Nicolas,  41645704
 -- Schiaffino Lautaro Leonardo Nicolas,  41646380
 -- Boero Caterina Milagros,  41693349
 ---------------------------------------------------
+-- Fecha entrega: 12/11/2024
+------------------   Consigna  ---------------------
+-- Cree la base de datos, entidades y relaciones. Incluya restricciones y claves. Deberá entregar un archivo .sql con el script completo de creación (debe funcionar si se lo ejecuta “tal cual” es entregado).
+-- Incluya comentarios para indicar qué hace cada módulo de código.Genere store procedures para manejar la inserción, modificado, borrado (si corresponde, también debe decidir si determinadas entidades solo admitirán borrado lógico) de cada tabla.
+-- Los nombres de los store procedures NO deben comenzar con “SP”. Genere esquemas para organizar de forma lógica los componentes del sistema y aplique esto en la creación de objetos. NO use el esquema “dbo”.
 
 ----------------------------------------------------
 -------------------  CREACION DB -------------------
