@@ -33,9 +33,10 @@ BEGIN TRY
 		Fecha DATE NOT NULL,                         
         Hora TIME NOT NULL,                            
 		IdMedioPago INT NOT NULL,              
-		Subtotal DECIMAL(10,2) NOT NULL,
+		SubtotalSinIVA DECIMAL(10,2) NOT NULL,
 		Total DECIMAL(10,2) NOT NULL,
 		IdentificadorPago VARCHAR(40),
+		CUIT VARCHAR(11) DEFAULT '20147258369',
 		CONSTRAINT Fk_Factura_Pago FOREIGN KEY(IdMedioPago)
 		REFERENCES Ventas.MedioDePago(Id)
 	)
@@ -66,12 +67,25 @@ BEGIN TRY
         TipoCliente VARCHAR(10) NOT NULL CHECK(TipoCliente IN('Member', 'Normal')),
         Genero CHAR(1) NOT NULL CHECK(Genero IN('F', 'M')),                      
 		IdEmpleado INT,
+		Total DECIMAL(10,5),
 		CONSTRAINT FK_Venta_Empleado FOREIGN KEY(IdEmpleado) 
 		REFERENCES Administracion.Empleado(Legajo) ON DELETE SET NULL ON UPDATE CASCADE,
 		CONSTRAINT FK_Venta_Sucursal FOREIGN KEY(IdSucursal) 
 		REFERENCES Administracion.Sucursal(Id),
         CONSTRAINT FK_Venta_Factura FOREIGN KEY(IdFactura) 
 		REFERENCES Ventas.Factura(Id) ON DELETE CASCADE ON UPDATE CASCADE,
+	)
+
+	CREATE TABLE Ventas.DetalleVenta(
+		Id INT IDENTITY(1,1) PRIMARY KEY,
+		IdVenta INT NOT NULL,
+		IdProducto INT NOT NULL,
+		PrecioUnitario DECIMAL(10,5) NOT NULL,
+		Cantidad INT NOT NULL CHECK(Cantidad > 0)
+		CONSTRAINT Fk_Detalle_Venta FOREIGN KEY(IdVenta)
+		REFERENCES Ventas.Venta(Id),
+		CONSTRAINT Fk_Detalle_Producto_Venta FOREIGN KEY(IdProducto)
+		REFERENCES Productos.Catalogo(Id)
 	)
 
     PRINT('+ Esquema y tablas en [Ventas] creados correctamente.');

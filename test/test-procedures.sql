@@ -64,7 +64,7 @@ GO
 
 -- Prueba SP Ventas --
 
-EXEC Ventas.InsertarVenta   @TipoCliente= 'Normal', @Sucursal='San Justo', @Genero= 'M', @LegajoEmpleado= '257020', @NumeroFactura='750-67-8428', @TipoFactura='A', @Fecha='1/5/2019' , @Hora= '13:08', @MedioPago='Cash', @IdentificadorPago='0000003100099475144530'
+EXEC Ventas.InsertarVenta   @TipoCliente= 'Normal', @Sucursal='Yangon', @Genero= 'M', @LegajoEmpleado= '257020', @NumeroFactura='750-67-8450', @TipoFactura='A', @Fecha='1/5/2019' , @Hora= '13:08', @MedioPago='Cash'
 GO
 
 EXEC Ventas.InsertarVenta   @TipoCliente= 'Normal', @Genero= 'M', @LegajoEmpleado= '257020', @NumeroFactura='750-67-8428', @TipoFactura='A', @Fecha='1/5/2019' , @Hora= '13:08', @MedioPago='Cash', @IdentificadorPago='0000003100099475144530'
@@ -99,10 +99,10 @@ GO
 
 -- Prueba SP Detalle de factura--
 
-EXEC Ventas.InsertarDetalleFactura @Factura='7632426' ,@Producto='Aceite corporal tacto seco Deliplus', @Categoria='cuidado_corporal', @PrecioCompra='3.5', @PrecioVenta='3.5' , @Cantidad='3' --- No inserta porque el numero de factura no existe
+EXEC Ventas.InsertarDetalleFactura @Factura='101-17-6199' ,@IdProducto='2', @PrecioVenta='3.5' , @Cantidad='3' --- No inserta porque el numero de factura no existe
 GO
 
-EXEC Ventas.InsertarDetalleFactura @Factura='976' ,@Producto='6 Panes pulguitas sin aditivos', @Categoria='pan_de_horno', @PrecioCompra='0.79', @PrecioVenta='3.25' , @Cantidad='3' --- No inserta porque el numero de factura no existe
+EXEC Ventas.InsertarDetalleFactura @Factura='976' ,@IdProducto='2', @Categoria='pan_de_horno', @PrecioCompra='0.79', @PrecioVenta='3.25' , @Cantidad='3' --- No inserta porque el numero de factura no existe
 GO
 
 -- Prueba SP Medio de pago--
@@ -120,10 +120,10 @@ GO
 
 
 -- Prueba SP Nota de credito --
-EXEC Ventas.InsertarNotaCredito '101-17-6199'
+EXEC Ventas.InsertarNotaCredito '102-77-2261'
 GO
 
-
+select * from Administracion.Empleado
 EXEC Administracion.AgregarColumnasEncriptadasEmpleado 'DireccionEncriptado'
 EXEC Administracion.EncriptarDatosEmpleado 'Direccion'
 EXEC Administracion.VerEmpleadoDesencriptado 'Direccion'

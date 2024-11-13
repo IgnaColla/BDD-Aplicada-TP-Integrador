@@ -7,11 +7,9 @@
 USE Com2900G17;
 GO
 
-CREATE OR ALTER PROCEDURE Ventas.InsertarDetalleFactura
+CREATE OR ALTER PROCEDURE Ventas.InsertarDetalleVenta
 	@Factura VARCHAR(15),
 	@IdProducto INT,
-	@Categoria VARCHAR(40),
-	@PrecioCompra DECIMAL(10,2),
 	@PrecioVenta DECIMAL(10,5),
 	@Cantidad INT
 AS
@@ -50,7 +48,7 @@ BEGIN
 
 	UPDATE ft
 		SET 
-			ft.Subtotal = ft.Subtotal + (@PrecioVenta * @Cantidad)
+			ft.SubtotalSinIVA = ft.SubtotalSinIVA + (@PrecioVenta * @Cantidad)
 		FROM 
 			Ventas.Factura ft
 		INNER JOIN 
@@ -59,12 +57,25 @@ BEGIN
 
 	UPDATE ft
 		SET 
-			ft.Total = ft.Subtotal * 1.21
+			ft.Total = ft.SubtotalSinIVA * 1.21
 		FROM 
 			Ventas.Factura ft
 		INNER JOIN 
 			Ventas.DetalleFactura df ON ft.Id = df.IdFactura
 		WHERE ft.id = @IdFactura;
+
+	DECLARE @IdVenta INT = (SELECT id FROM Ventas.Venta WHERE IdFactura =(SELECT Id FROM	Ventas.Factura WHERE NumeroFactura=@Factura));
+
+	INSERT Ventas.DetalleVenta VALUES (@IdVenta,@IdProducto,@PrecioVenta,@Cantidad);
+
+	UPDATE vt
+		SET 
+			vt.Total = vt.Total + (@PrecioVenta * @Cantidad)
+		FROM 
+			Ventas.Venta vt
+		INNER JOIN 
+			Ventas.DetalleVenta dv ON vt.Id = dv.IdVenta
+		WHERE vt.id = @IdVenta;
 
 	COMMIT TRANSACTION;  -- Confirmar transacción
 

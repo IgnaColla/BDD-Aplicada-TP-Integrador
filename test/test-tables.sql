@@ -14,9 +14,10 @@ select * from Productos.Catalogo order by id
 
 select * from Ventas.Venta
 select * from Ventas.DetalleFactura
-select * from Ventas.Factura
+select * from Ventas.Factura where numeroFactura = '101-17-6199'
 select * from Ventas.NotaCredito
 select * from Ventas.MedioDePago
+select * from Ventas.DetalleVenta
 
 --VACIAR TABLAS
 /*
@@ -36,3 +37,4 @@ delete from Ventas.NotaCredito
 delete from Ventas.MedioDePago
 
 */
+

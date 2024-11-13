@@ -45,7 +45,7 @@ GO
 USE Com2900G17;
 GO
 EXECUTE AS USER = 'UserSupervisor';
-EXEC Ventas.InsertarNotaCredito '101-81-4070';
+EXEC Ventas.InsertarNotaCredito '102-77-2261';
 REVERT;
 GO
 

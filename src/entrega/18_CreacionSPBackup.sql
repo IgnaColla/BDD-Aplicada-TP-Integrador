@@ -1,23 +1,35 @@
 -------------------------------------------------------------------
 -------------------  Stored Procedures BACKUP  --------------------
 -------------------------------------------------------------------
-
-/*
-Para la ejecucion periodica de estos backups es necesario crear un job en Windows, debido a que la version SQL Server Express
-no permite la utilizacion de SQL Server Agent para lograr esto
-*/
-
--- Backup diferencial de la base de datos "Ventas"
-BACKUP DATABASE Com2900G17
-TO DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLPC\MSSQL\Backups\Ventas_Diario_Diferencial.bak'
-WITH DIFFERENTIAL, 
-     NAME = 'Backup Diferencial Diario',
-     FORMAT;
-GO
-
 -- Backup completo de la base de datos "Ventas"
-BACKUP DATABASE Com2900G17
-TO DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLPC\MSSQL\Backups\Ventas_Semanal_Completo.bak'
-WITH FORMAT, 
-     NAME = 'Backup Completo Semanal';
+
+USE Com2900G17
 GO
+
+CREATE OR ALTER PROCEDURE Administracion.backupDiario
+    @Path NVARCHAR(255)
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX)
+    SET @sql = 'BACKUP DATABASE Com2900G17 TO DISK = ''' + @Path + ''' WITH DIFFERENTIAL, NAME = ''Backup Diferencial Diario'', FORMAT;'
+
+    EXEC sp_executesql @sql
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE Administracion.backupSemanal
+    @Path NVARCHAR(255)
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX)
+    SET @sql = 'BACKUP DATABASE Com2900G17 TO DISK = ''' + @Path + ''' WITH FORMAT, NAME = ''Backup Diferencial Diario'', FORMAT;'
+
+    EXEC sp_executesql @sql
+END;
+GO
+
+exec Administracion.backupSemanal @Path = 'D:\Backup\Ventas_Semanal_Completo.bak'
+exec Administracion.backupDiario @Path = 'D:\Backup\Ventas_Diario_Diferencial.bak'
+
+EXEC Ventas.InformeMensualDiarioTotalFacturadoXML

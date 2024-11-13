@@ -15,7 +15,7 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;  -- Iniciar transacción
-		IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE NumeroFactura=@Factura OR (SELECT IdentificadorPago FROM Ventas.Factura WHERE NumeroFactura=@Factura) = NULL)
+		IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE NumeroFactura=@Factura) AND (SELECT IdentificadorPago FROM Ventas.Factura WHERE NumeroFactura=@Factura) = NULL
         BEGIN
             RAISERROR('+ La factura no existe o no esta paga. Terminando el procedimiento.', 16, 1);
             RETURN;
