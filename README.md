@@ -10,7 +10,7 @@
 | Característica               | Configuración                                                                                                                             |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | **Sistema Operativo**        | - Windows Server 2019 o superior                                                                                                          |
-| **Versión**                  | - SQL Server 2022                                                                                                                         |
+| **Versión del motor**        | - SQL Server 2022                                                                                                                         |
 | **Nombre de la Base de Datos** | - `Com2900G17`                                                                                                                          |
 | **Ruta de Instalación**      | - `C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER`                                                                             |
 | **Ruta de Datos**            | - `C:\Program Files\Microsoft SQL Server\MSSQL16.SQLPC\MSSQL\DATA`                                                                        |
@@ -20,6 +20,8 @@
 | **Memoria Asignada**         | - 75-80% de la memoria física total                                                                                                       |
 | **Modo de Autenticación**    | - Modo mixto (Autenticación de Windows y SQL Server)                                                                                      |
 | **Configuración de Puertos** | - Puerto TCP predeterminado: `1433`                                                                                                       |
+| **Cantidad de conexiones concurrentes** | - Capacidad hasta 30 puestos de trabajo en simultáneo                                                                          |
+| **Tamaño estimado de la base** | - Crecimiento proyectado de 2GB por año                                                                                                 |
 | **Cifrado de Datos**         | - Uso de claves simétricas para encriptar datos personales                                                                                |
 | **Supervisión y Alertas**    | - Configuración de alertas para fallos en copias de seguridad, uso de CPU, y crecimiento de archivos de logs                              |
 | **Prácticas de Seguridad de la Base** | - Implementación de roles `Empleado` y `Supervisor` para manipulación de notas de crédito                                        |
